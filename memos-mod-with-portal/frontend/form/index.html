@@ -1,0 +1,89 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitud de Memorándum – RRHH</title>
+<link rel="stylesheet" href="./form.css">
+<body>
+  <header class="main-header">
+    <img src="/static/logo_heineken.jpg" alt="Heineken" class="header-logo">
+    <div class="header-title">Solicitud de Memorándum – RRHH</div>
+  </header>
+
+  <div class="progress-wrap" aria-hidden="true">
+    <div class="progress"><div class="progress__fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="center-container">
+    <form id="memoForm" enctype="multipart/form-data" novalidate>
+      <fieldset>
+        <legend><span>A. Solicitante</span> <span class="legend-status" id="statusA">0%</span></legend>
+        <label>Email solicitante</label>
+        <input name="solicitante_email" type="email" required placeholder="nombre@heineken.com">
+        <label>Gerencia/Área solicitante</label>
+        <input name="area_sol" placeholder="Ej.: Ventas – ON Trade">
+      </fieldset>
+
+      <fieldset>
+        <legend><span>B. Trabajador</span> <span class="legend-status" id="statusB">0%</span></legend>
+        <div class="row">
+          <div>
+            <label>DNI</label>
+            <input name="dni" pattern="\d{8}" maxlength="8" required placeholder="8 dígitos">
+            <small id="dni_info"></small>
+          </div>
+          <div>
+            <label>Nombre y apellidos</label>
+            <input name="nombre" required placeholder="Nombres Apellidos">
+          </div>
+        </div>
+        <div class="row">
+          <div><label>Área</label><input name="area" placeholder="Ej.: Ventas"></div>
+          <div><label>Cargo</label><input name="cargo" placeholder="Ej.: Desarrollador de Ventas"></div>
+        </div>
+        <label>Equipo</label>
+        <select name="equipo" required>
+          <option value="">Seleccionar equipo</option>
+          <option value="Canal ON">Canal ON</option>
+          <option value="Canal OFF">Canal OFF</option>
+          <option value="Equipo Provincias">Equipo Provincias</option>
+          <option value="Moderno">Moderno</option>
+          <option value="Otros">Otros</option>
+        </select>
+        <label>Email Jefe directo</label>
+        <input name="jefe_email" type="email" required placeholder="jefe@heineken.com">
+      </fieldset>
+
+      <fieldset>
+        <legend><span>C. Inciso del Art. 35 (ventas)</span> <span class="legend-status" id="statusC">0%</span></legend>
+        <label>Selecciona el inciso</label>
+        <select name="inciso_num" id="inciso_select" required></select>
+        <div class="examples" id="inciso_examples" style="display:none">
+          <b>Ejemplos orientativos (ventas):</b>
+          <ul id="ex_ul"></ul>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span>D. Hechos</span> <span class="legend-status" id="statusD">0%</span></legend>
+        <label>¿Qué ocurrió? (descripción breve y concreta)</label>
+        <textarea name="hecho_que" rows="4" required placeholder="Describe el hecho de forma objetiva, con fechas y lugares. Máx. 1500 caracteres."></textarea>
+        <div class="row">
+          <div><label>¿Cuándo?</label><input name="hecho_cuando" type="date" required></div>
+          <div><label>¿Dónde?</label><input name="hecho_donde" placeholder="ej.: ruta SJL - On Trade"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><span>E. Evidencias (opcional)</span></legend>
+        <label>Imágenes (JPG/PNG) – se insertarán en la página 2 del memo</label>
+        <input type="file" name="evidencias" accept="image/png,image/jpeg" multiple>
+      </fieldset>
+
+      <p class="note">La fecha límite de descargos será <b>3 días hábiles</b> desde hoy.</p>
+      <button type="submit" id="submitBtn" disabled>Enviar solicitud</button>
+    </form>
+  </div>
+
+  <div class="footer">© Desarrollado por Sissy Ospina - HR Intern</div>
+  <script src="./form.js"></script>
+</body>

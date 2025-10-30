@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitud registrada – Heineken</title>
+<link rel="stylesheet" href="./success.css">
+<body>
+<div class="card" role="status" aria-live="polite">
+  <div class="brand">
+    <img src="/static/logo_heineken.jpg" alt="Heineken">
+    <h1>Solicitud registrada</h1>
+  </div>
+  <div class="ok" aria-hidden="true">
+    <svg viewBox="0 0 120 120">
+      <circle class="circle" cx="60" cy="60" r="54" />
+      <path class="tick" d="M35 62 L54 79 L86 43" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <p class="lead">
+    Código <span class="chip" id="chipMemo"></span>
+    <span style="opacity:.6">/</span>
+    Correspondencia <span class="chip" id="chipCorr"></span>
+  </p>
+  <p class="helper">Se envió a <b>Legal para revisión</b>. Te notificaremos por correo (<span id="email"></span>).</p>
+
+  <div class="actions">
+    <a class="btn btn-outline" id="aPDF" href="#" target="_blank">Descargar PDF/Word</a>
+    <a class="btn btn-muted"  href="/form/index.html">Nueva solicitud</a>
+  </div>
+</div>
+<script src="./success.js"></script>
+</body>

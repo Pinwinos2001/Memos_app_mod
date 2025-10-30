@@ -1,0 +1,93 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard – Memos RRHH</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="./dashboard.css">
+<body>
+<header class="header">
+  <div class="brand">
+    <img src="/static/logo_heineken.jpg" alt="Heineken">
+    <h1>Dashboard – Memos RRHH</h1>
+  </div>
+  <div class="header-actions">
+    <a class="btn btn-outline" href="/dashboard/index.html">Refrescar</a>
+    <a class="btn btn-primary" href="/form/index.html">Nuevo Memo</a>
+    <button class="btn btn-outline" onclick="exportCSV()">Exportar CSV</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="overview">Resumen</button>
+  <button class="tab" data-tab="analytics">Análisis</button>
+  <button class="tab" data-tab="memos">Lista de Memos</button>
+</nav>
+
+<main class="tab-panels">
+  <section id="overview" class="panel" style="display:block">
+    <div class="stats">
+      <div class="stat"><div class="stat-number" id="total-memos">–</div><div class="stat-label">Total Memos</div></div>
+      <div class="stat"><div class="stat-number" id="pendientes">–</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat"><div class="stat-number" id="aprobados">–</div><div class="stat-label">Aprobados</div></div>
+      <div class="stat"><div class="stat-number" id="emitidos">–</div><div class="stat-label">Emitidos</div></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Memos por Mes</h3>
+        <canvas id="chartMeses" height="160"></canvas>
+      </div>
+      <div class="card">
+        <h3>Memos por Equipo</h3>
+        <canvas id="chartEquipos" height="160"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section id="analytics" class="panel" style="display:none">
+    <div class="grid">
+      <div class="card">
+        <h3>Incisos más comunes</h3>
+        <canvas id="chartIncisos" height="180"></canvas>
+      </div>
+      <div class="card">
+        <h3>Tipos de Memo</h3>
+        <canvas id="chartTipos" height="180"></canvas>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <h3>Tendencia semanal</h3>
+      <canvas id="chartTendencia" height="160"></canvas>
+    </div>
+  </section>
+
+  <section id="memos" class="panel" style="display:none">
+    <div class="filters">
+      <input id="search" class="search" placeholder="Buscar por DNI, nombre o memo ID...">
+      <select id="estado-filter">
+        <option value="">Todos los estados</option>
+        <option>En revisión Legal</option>
+        <option>Aprobado Legal - Pendiente RRHH</option>
+        <option>Aprobado RRHH</option>
+        <option>Emitido</option>
+        <option>Observado Legal</option>
+        <option>Observado RRHH</option>
+      </select>
+      <button class="btn btn-outline" onclick="cargarMemos()">Buscar</button>
+      <button class="btn btn-outline" onclick="exportCSV()">Exportar CSV</button>
+    </div>
+    <div class="table">
+      <table>
+        <thead><tr>
+          <th>Memo ID</th><th>DNI</th><th>Nombre</th><th>Equipo</th><th>Tipo</th><th>Estado</th><th>Fecha</th>
+        </tr></thead>
+        <tbody id="memos-table">
+          <tr><td colspan="7" style="text-align:center; color:#64748b; padding:28px">Cargando memos…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="footer">© Desarrollado por Sissy Ospina – HR Intern</div>
+<script src="./dashboard.js"></script>
+</body>

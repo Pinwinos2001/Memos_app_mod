@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisión Legal</title>
+<link rel="stylesheet" href="./review.css">
+<body>
+<div class="card">
+  <div class="brand">
+    <img src="/static/logo_heineken.jpg" alt="Heineken">
+    <h1>Revisión Legal</h1>
+  </div>
+  <div id="memo"></div>
+  <div class="downloads" id="downloads"></div>
+  <form id="legalForm">
+    <input type="hidden" name="id">
+    <div class="actions">
+      <button class="btn btn-primary" name="decision" value="APROBAR" type="submit">Aprobar Legal</button>
+      <button class="btn btn-danger"  name="decision" value="OBSERVAR" type="submit">Observar</button>
+      <span class="btn btn-muted" style="pointer-events:none">Comentario (si observa):</span>
+    </div>
+    <label for="comentario">Comentario</label>
+    <textarea id="comentario" name="comentario" placeholder="Describe claramente la observación"></textarea>
+  </form>
+</div>
+<script src="./review.js"></script>
+</body>

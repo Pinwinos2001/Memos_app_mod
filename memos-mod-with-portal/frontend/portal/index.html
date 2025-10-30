@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heineken Memos – Portal</title>
+<link rel="stylesheet" href="./portal.css">
+<body>
+<header>
+  <div class="brand">
+    <img src="/static/logo_heineken.jpg" alt="Heineken">
+    <div>
+      <h1>Heineken Memos</h1>
+      <small>Portal de Gestión de Memorándums</small>
+    </div>
+  </div>
+  <nav><a href="/portal/index.html">Perfil</a></nav>
+</header>
+
+<main class="main">
+  <h2>Bienvenido al Portal</h2>
+  <p class="sub">Gestiona tus solicitudes de memorándums de forma rápida y segura</p>
+
+  <div class="grid">
+    <div class="card btn green" onclick="location.href='/form/index.html'">
+      <div class="icon">＋</div>
+      <div><h3>Nueva Solicitud</h3><p>Crear un nuevo memorándum</p></div>
+    </div>
+    <div class="card btn blue" onclick="alert('Próximamente: consulta de estado');">
+      <div class="icon">🕒</div>
+      <div><h3>Ver Estatus</h3><p>Consulta el estado de tus solicitudes</p></div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Acceso Restringido</h3>
+  <div class="grid">
+    <div class="card btn purple" onclick="location.href='/auth/key.html?role=dash&next=/dashboard/index.html'">
+      <div class="icon">🔒</div>
+      <div><h3>Dashboard</h3><p>Estadísticas y reportes</p></div>
+    </div>
+    <div class="card btn orange" onclick="location.href='/auth/key.html?role=legal'">
+      <div class="icon">🔒</div>
+      <div><h3>Legal</h3><p>Revisión de documentos</p></div>
+    </div>
+    <div class="card btn red" onclick="location.href='/auth/key.html?role=rrhh'">
+      <div class="icon">🔒</div>
+      <div><h3>RRHH</h3><p>Gestión de recursos</p></div>
+    </div>
+  </div>
+</main>
+
+<div class="footer">© Desarrollado por Sissy Ospina – HR Intern</div>
+</body>

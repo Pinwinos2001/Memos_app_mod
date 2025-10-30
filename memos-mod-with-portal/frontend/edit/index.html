@@ -1,0 +1,78 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editar Memorándum</title>
+<link rel="stylesheet" href="../form/form.css">
+<body>
+<header class="main-header">
+  <img src="/static/logo_heineken.jpg" alt="Heineken" class="header-logo">
+  <div class="header-title">Editar Memorándum</div>
+</header>
+<div class="center-container">
+  <form id="editForm" enctype="multipart/form-data">
+    <!-- same fields as form -->
+    <fieldset>
+      <legend>A. Solicitante</legend>
+      <label>Email solicitante</label>
+      <input name="solicitante_email" type="email" required>
+      <label>Gerencia/Área solicitante</label>
+      <input name="area_sol">
+    </fieldset>
+
+    <fieldset>
+      <legend>B. Trabajador</legend>
+      <div class="row">
+        <div>
+          <label>DNI</label>
+          <input name="dni" pattern="\d{8}" maxlength="8" required>
+          <small id="dni_info"></small>
+        </div>
+        <div>
+          <label>Nombre y apellidos</label>
+          <input name="nombre" required>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Área</label><input name="area"></div>
+        <div><label>Cargo</label><input name="cargo"></div>
+      </div>
+      <label>Equipo</label>
+      <select name="equipo" required>
+        <option value="">Seleccionar equipo</option>
+        <option>Canal ON</option><option>Canal OFF</option><option>Equipo Provincias</option><option>Moderno</option><option>Otros</option>
+      </select>
+      <label>Email Jefe directo</label>
+      <input name="jefe_email" type="email" required>
+    </fieldset>
+
+    <fieldset>
+      <legend>C. Inciso del Art. 35 (ventas)</legend>
+      <label>Selecciona el inciso</label>
+      <select name="inciso_num" id="inciso_select" required></select>
+      <div class="examples" id="inciso_examples" style="display:none">
+        <b>Ejemplos orientativos (ventas):</b>
+        <ul id="ex_ul"></ul>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>D. Hechos</legend>
+      <label>¿Qué ocurrió? (descripción breve y concreta)</label>
+      <textarea name="hecho_que" rows="4" required></textarea>
+      <div class="row">
+        <div><label>¿Cuándo?</label><input name="hecho_cuando" type="date" required></div>
+        <div><label>¿Dónde?</label><input name="hecho_donde"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>E. Evidencias (opcional)</legend>
+      <label>Imágenes (JPG/PNG)</label>
+      <input type="file" name="evidencias" accept="image/png,image/jpeg" multiple>
+    </fieldset>
+
+    <button type="submit" id="btnUpdate">Actualizar Memo</button>
+  </form>
+</div>
+<script src="./edit.js"></script>
+</body>
