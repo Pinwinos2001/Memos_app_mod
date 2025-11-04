@@ -74,3 +74,11 @@ def db_one(q: str, args: Tuple[Any,...]=()):
     row = cur.fetchone()
     con.close()
     return row
+
+def db_all(q: str, args: Tuple[Any, ...] = ()):
+    con = sqlite3.connect(DB_PATH)
+    cur = con.cursor()
+    cur.execute(q, args)
+    rows = cur.fetchall()
+    con.close()
+    return rows

@@ -1,3 +1,7 @@
+from fastapi import APIRouter, Form, HTTPException, Header
+from ..api.auth import require_auth
+from ..services.db import db_one, db_all, db_exec
+
 import uuid, json
 from datetime import datetime
 from pathlib import Path
@@ -411,4 +415,74 @@ def api_metrics(Authorization: str | None = Header(None)):
         "incisos_comunes": incisos_comunes,
         "memos_por_tipo": memos_por_tipo,
         "tendencia_semanal": tendencia_semanal
+    }
+@router.get("/api/summary")
+def api_summary(role: str, Authorization: str = Header(None)):
+    role = (role or "").lower()
+    if role not in ("legal", "rrhh"):
+        raise HTTPException(status_code=400, detail="Rol inválido")
+
+    # Permite consultar al propio rol o al dashboard
+    require_auth(Authorization, [role, "dash"])
+
+    if role == "legal":
+        # Aprobados / No aprobados se basan en la decisión de Legal
+        approved = db_one("SELECT COUNT(*) FROM memos WHERE UPPER(legal_aprobado)='APROBADO'")[0]
+        not_appr = db_one("SELECT COUNT(*) FROM memos WHERE UPPER(legal_aprobado)='OBSERVADO'")[0]
+
+        # Pendientes: Legal AÚN no decidió (NULL o cadena vacía), y además
+        # excluimos estados finales de RRHH para no “ensuciar” la cola de Legal
+        pending  = db_one("""
+            SELECT COUNT(*) FROM memos
+            WHERE COALESCE(legal_aprobado,'')=''
+            AND estado NOT IN ('Observado Legal','Emitido','Aprobado RRHH','Observado RRHH')
+        """)[0]
+
+        rows = db_all("""
+            SELECT id, memo_id, dni, nombre, equipo, created_at
+            FROM memos
+            WHERE COALESCE(legal_aprobado,'')=''
+            AND estado NOT IN ('Observado Legal','Emitido','Aprobado RRHH','Observado RRHH')
+            ORDER BY datetime(created_at) ASC
+            LIMIT 50
+        """)
+
+    else:
+        # RRHH — tus estados reales:
+        # Aprobados/emitidos: 'Emitido' o 'Aprobado RRHH'
+        # No aprobados: 'Observado RRHH'
+        # Pendientes: legal_aprobado='APROBADO' y NO en ninguno de los anteriores
+        approved = db_one("""
+            SELECT COUNT(*) FROM memos
+            WHERE estado IN ('Emitido','Aprobado RRHH')
+        """)[0]
+
+        pending  = db_one("""
+            SELECT COUNT(*) FROM memos
+            WHERE legal_aprobado='APROBADO'
+              AND estado NOT IN ('Emitido','Aprobado RRHH','Observado RRHH')
+        """)[0]
+
+        not_appr = db_one("""
+            SELECT COUNT(*) FROM memos
+            WHERE estado='Observado RRHH'
+        """)[0]
+
+        rows = db_all("""
+            SELECT id, memo_id, dni, nombre, equipo, created_at
+            FROM memos
+            WHERE legal_aprobado='APROBADO'
+              AND estado NOT IN ('Emitido','Aprobado RRHH','Observado RRHH')
+            ORDER BY datetime(created_at) ASC
+            LIMIT 50
+        """)
+
+    pending_rows = [
+        {"id": r[0], "memo_id": r[1], "dni": r[2], "nombre": r[3], "equipo": r[4], "created_at": r[5]}
+        for r in rows
+    ]
+    return {
+        "role": role,
+        "counts": {"approved": approved, "pending": pending, "not_approved": not_appr},
+        "pending": pending_rows
     }

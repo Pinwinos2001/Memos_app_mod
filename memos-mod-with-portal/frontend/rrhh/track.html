@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seguimiento – RRHH</title>
+<link rel="stylesheet" href="/assets/track.css?v=3">
+<body>
+<header class="header">
+  <div class="brand">
+    <img src="/static/logo_heineken.jpg" alt="Heineken">
+    <h1>Seguimiento RRHH</h1>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="/portal/index.html">Portal</a>
+    <button class="btn btn-primary" id="btnRefresh">Refrescar</button>
+  </div>
+</header>
+
+<main class="main">
+  <section class="stats">
+    <div class="stat"><div class="n" id="nPending">–</div><div class="l">Por aprobar</div></div>
+    <div class="stat"><div class="n" id="nApproved">–</div><div class="l">Aprobados/Emitidos</div></div>
+    <div class="stat"><div class="n" id="nObserved">–</div><div class="l">No aprobados</div></div>
+  </section>
+
+  <section class="table">
+    <table>
+      <thead><tr>
+        <th>Memo ID</th><th>DNI</th><th>Nombre</th><th>Equipo</th><th>Fecha</th><th>Acciones</th>
+      </tr></thead>
+      <tbody id="tbodyRRHH">
+        <tr><td colspan="6" style="text-align:center;color:#64748b;padding:28px">Cargando…</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<div class="footer">© Desarrollado por Sissy Ospina – HR Intern</div>
+<script src="/rrhh/track_rrhh.js" defer></script>
+</body>
