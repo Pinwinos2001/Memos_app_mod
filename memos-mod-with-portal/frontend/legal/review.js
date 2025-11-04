@@ -20,13 +20,13 @@ async function authFetch(url, options) {
 
 function qs(k) { return new URLSearchParams(location.search).get(k); }
 
-const id = qs('id');
-const memoDiv = document.getElementById('memo');
+const id        = qs('id');
+const memoDiv   = document.getElementById('memo');
 const downloads = document.getElementById('downloads');
-const form = document.getElementById('legalForm');
+const form      = document.getElementById('legalForm');
 
+// Asegura que el hidden "id" tenga valor
 if (form && id) {
-  // Asegura que el campo oculto "id" del form tenga el valor
   const hid = form.querySelector('input[name="id"]');
   if (hid) hid.value = id;
 }
@@ -56,27 +56,43 @@ async function load() {
 function goPortal(nextUrlFromServer) {
   try { if (window.opener) window.opener.postMessage({ t: 'memos:refresh' }, '*'); } catch (e) {}
   const next = nextUrlFromServer || '/portal/index.html';
-  location.replace(next); // replace evita volver a esta vista con "Atrás"
+  location.replace(next); // evita volver con "Atrás"
 }
 
+// Envío del form: usa el botón que disparó el submit para setear 'decision'
 if (form) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Qué botón disparó el submit (APROBAR / OBSERVAR)
+    const submitter = e.submitter; // <button name="decision" value="...">
+    const decision = (submitter && submitter.name === 'decision')
+      ? (submitter.value || 'APROBAR')
+      : 'APROBAR';
+
     const fd = new FormData(form);
+    // asegura que 'decision' viaje aunque FormData no incluya el submitter
+    fd.set('decision', decision);
+
+    // (Opcional) si observa sin comentario, pedir confirmación
+    if (decision === 'OBSERVAR') {
+      const txt = (fd.get('comentario') || '').trim();
+      if (!txt) {
+        const ok = confirm('Estás observando sin comentario. ¿Deseas continuar?');
+        if (!ok) return;
+      }
+    }
+
     try {
       const r = await authFetch('/legal_approve', { method: 'POST', body: fd });
       const d = await r.json().catch(() => ({}));
       if (r.ok && d && d.ok) {
-        // alert opcional:
-        // alert('Guardado: ' + (d.status || 'OK'));
         goPortal(d.next_url);
       } else {
-        // alert('Guardado (respuesta no estándar).');
         goPortal(d && d.next_url);
       }
     } catch (err) {
       console.error(err);
-      // alert('Ocurrió un error, pero volveremos al portal.');
       goPortal();
     }
   });
