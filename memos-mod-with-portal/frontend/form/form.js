@@ -12,6 +12,7 @@ async function cargarIncisos(){
   });
   sel.dispatchEvent(new Event('change'));
 }
+
 document.addEventListener('change', e=>{
   if(e.target && e.target.id === 'inciso_select'){
     const opt = e.target.selectedOptions[0];
@@ -42,6 +43,7 @@ async function checkDNI(){
     }catch{ info.textContent=''; }
   }else{ info.textContent=''; }
 }
+
 dniInput.addEventListener('input', checkDNI);
 dniInput.addEventListener('blur', checkDNI);
 
@@ -51,13 +53,16 @@ const sections = {
   C: ['#inciso_select'],
   D: ['[name="hecho_que"]','[name="hecho_cuando"]']
 };
+
 const statusEls = {
   A: document.getElementById('statusA'),
   B: document.getElementById('statusB'),
   C: document.getElementById('statusC'),
   D: document.getElementById('statusD')
 };
+
 function pct(v,t){ return Math.round((v/Math.max(t,1))*100); }
+
 function computeProgress(){
   const allReq = [...form.querySelectorAll('[required]')];
   let validCount = 0;
@@ -68,6 +73,7 @@ function computeProgress(){
   const globalPct = pct(validCount, allReq.length);
   progressFill.style.width = globalPct + '%';
   submitBtn.disabled = !form.checkValidity();
+  
   Object.entries(sections).forEach(([key, sels])=>{
     let t=0,v=0;
     sels.forEach(sel=>{
@@ -79,21 +85,40 @@ function computeProgress(){
     if(statusEls[key]) statusEls[key].textContent = p + '%';
   });
 }
+
 form.addEventListener('input', computeProgress);
 form.addEventListener('change', computeProgress);
 
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   submitBtn.disabled = true;
-  const fd = new FormData(form);
-  const r = await fetch('/submit', { method: 'POST', body: fd });
-  const data = await r.json();
-  if(data && data.success_url){
-    window.location.href = data.success_url;
-  }else if(data && data.ok){
-    window.location.href = `/result/success.html?memo_id=${encodeURIComponent(data.memo_id)}&corr_id=${encodeURIComponent(data.corr_id)}&email=${encodeURIComponent(fd.get('solicitante_email')||'')}&pdf=${encodeURIComponent(data.pdf_url||'')}`;
-  }else{
-    alert('Enviado. Si no te redirige, revisa el correo de confirmación.');
+  
+  // MOSTRAR LOADER
+  if(window.HnkLoader) {
+    HnkLoader.show('Enviando solicitud...', 'Generando documento y notificando a Legal');
+  }
+  
+  try {
+    const fd = new FormData(form);
+    const r = await fetch('/submit', { method: 'POST', body: fd });
+    const data = await r.json();
+    
+    if(data && data.success_url){
+      window.location.href = data.success_url;
+    } else if(data && data.ok){
+      window.location.href = `/result/success.html?memo_id=${encodeURIComponent(data.memo_id)}&corr_id=${encodeURIComponent(data.corr_id)}&email=${encodeURIComponent(fd.get('solicitante_email')||'')}&pdf=${encodeURIComponent(data.pdf_url||'')}`;
+    } else {
+      // OCULTAR LOADER en caso de error
+      if(window.HnkLoader) HnkLoader.hide();
+      alert('Enviado. Si no te redirige, revisa el correo de confirmación.');
+      submitBtn.disabled = false;
+    }
+  } catch(err) {
+    // OCULTAR LOADER en caso de error
+    if(window.HnkLoader) HnkLoader.hide();
+    console.error('Error al enviar:', err);
+    alert('Ocurrió un error al enviar la solicitud. Por favor intenta nuevamente.');
+    submitBtn.disabled = false;
   }
 });
 

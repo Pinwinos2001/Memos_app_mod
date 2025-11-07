@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seguimiento – Legal</title>
-<link rel="stylesheet" href="/assets/track.css?v=3">
+<link rel="stylesheet" href="/assets/track.css">
 <body>
 <header class="header">
   <div class="brand">
@@ -22,13 +22,19 @@
     <div class="stat"><div class="n" id="nObserved">–</div><div class="l">No aprobados</div></div>
   </section>
 
+  <div class="tabs">
+    <div class="tab active" data-view="pending">Pendientes <span class="pill" id="pillPending">–</span></div>
+    <div class="tab" data-view="approved">Aprobados <span class="pill" id="pillApproved">–</span></div>
+    <div class="tab" data-view="rejected">No aprobados <span class="pill" id="pillRejected">–</span></div>
+  </div>
+
   <section class="table">
     <table>
       <thead><tr>
-        <th>Memo ID</th><th>DNI</th><th>Nombre</th><th>Equipo</th><th>Fecha</th><th>Acciones</th>
+        <th>Memo ID</th><th>DNI</th><th>Nombre</th><th>Equipo</th><th>Fecha</th><th id="thAcc">Acciones</th>
       </tr></thead>
       <tbody id="tbodyLegal">
-        <tr><td colspan="6" style="text-align:center;color:#64748b;padding:28px">Cargando…</td></tr>
+        <tr><td class="empty" colspan="6">Cargando…</td></tr>
       </tbody>
     </table>
   </section>
@@ -37,4 +43,3 @@
 <div class="footer">© Desarrollado por Sissy Ospina – HR Intern</div>
 <script src="/legal/track_legal.js" defer></script>
 </body>
-

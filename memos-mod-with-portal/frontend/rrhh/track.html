@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seguimiento – RRHH</title>
-<link rel="stylesheet" href="/assets/track.css?v=3">
+<link rel="stylesheet" href="/assets/track.css">
 <body>
 <header class="header">
   <div class="brand">
@@ -16,19 +16,36 @@
 </header>
 
 <main class="main">
-  <section class="stats">
-    <div class="stat"><div class="n" id="nPending">–</div><div class="l">Por aprobar</div></div>
-    <div class="stat"><div class="n" id="nApproved">–</div><div class="l">Aprobados/Emitidos</div></div>
-    <div class="stat"><div class="n" id="nObserved">–</div><div class="l">No aprobados</div></div>
+  <!-- 3 tarjetas clicables -->
+  <section class="stats" id="statsBar">
+    <div class="stat active" data-view="pending" id="cardPending">
+      <div class="n" id="nPending">–</div>
+      <div class="l">Por aprobar</div>
+    </div>
+    <div class="stat" data-view="approved" id="cardApproved">
+      <div class="n" id="nApproved">–</div>
+      <div class="l">Aprobados/Emitidos</div>
+    </div>
+    <div class="stat" data-view="rejected" id="cardRejected">
+      <div class="n" id="nObserved">–</div>
+      <div class="l">No aprobados</div>
+    </div>
   </section>
 
   <section class="table">
     <table>
-      <thead><tr>
-        <th>Memo ID</th><th>DNI</th><th>Nombre</th><th>Equipo</th><th>Fecha</th><th>Acciones</th>
-      </tr></thead>
+      <thead>
+        <tr>
+          <th>Memo ID</th>
+          <th>DNI</th>
+          <th>Nombre</th>
+          <th>Equipo</th>
+          <th>Fecha</th>
+          <th id="thAcc">Acciones</th>
+        </tr>
+      </thead>
       <tbody id="tbodyRRHH">
-        <tr><td colspan="6" style="text-align:center;color:#64748b;padding:28px">Cargando…</td></tr>
+        <tr><td class="empty" colspan="6">Cargando…</td></tr>
       </tbody>
     </table>
   </section>

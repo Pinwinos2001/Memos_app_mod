@@ -1,25 +1,25 @@
-from fastapi import APIRouter, Form, HTTPException, Header
-from ..api.auth import require_auth
-from ..services.db import db_one, db_all, db_exec
-
-import uuid, json
+# backend/api/memos.py
 from datetime import datetime
 from pathlib import Path
 from typing import List
+import uuid
+import json
 
 from fastapi import APIRouter, Form, UploadFile, File, HTTPException, Header
 
-from ..services.db import db_init, db_exec, db_one
+from ..api.auth import require_auth
+from ..services.db import db_init, db_exec, db_one, db_all
 from ..services.memo import (
     validar_dni, validar_email, es_email_heineken, sanitizar_texto,
-    previos_from_db, business_days_from, next_running_number, INCISO_TEXTO, tipo_por_historial
+    previos_from_db, business_days_from, next_running_number,
+    INCISO_TEXTO, tipo_por_historial
 )
 from ..services.documents import generate_doc_from_template, try_export_pdf
 from ..services.mail import send_mail, get_legal_email, get_rrhh_emails
-from ..api.auth import require_auth
 from ..core.config import OUT_DIR, BASE_URL
 
 router = APIRouter()
+
 
 def _sanitize_common(nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde):
     nombre = sanitizar_texto(nombre)
@@ -29,6 +29,7 @@ def _sanitize_common(nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde):
     hecho_cuando = sanitizar_texto(hecho_cuando)
     hecho_donde = sanitizar_texto(hecho_donde)
     return nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde
+
 
 @router.post("/submit")
 async def submit(
@@ -48,12 +49,17 @@ async def submit(
 ):
     db_init()
 
-    # Validations
-    if not validar_dni(dni): raise HTTPException(400, "DNI debe tener 8 dígitos.")
-    if not validar_email(solicitante_email): raise HTTPException(400, "Email del solicitante inválido.")
-    if not validar_email(jefe_email): raise HTTPException(400, "Email del jefe directo inválido.")
-    if not es_email_heineken(solicitante_email): raise HTTPException(400, "Email del solicitante debe ser de dominio Heineken.")
-    if not es_email_heineken(jefe_email): raise HTTPException(400, "Email del jefe directo debe ser de dominio Heineken.")
+    # Validaciones
+    if not validar_dni(dni):
+        raise HTTPException(400, "DNI debe tener 8 dígitos.")
+    if not validar_email(solicitante_email):
+        raise HTTPException(400, "Email del solicitante inválido.")
+    if not validar_email(jefe_email):
+        raise HTTPException(400, "Email del jefe directo inválido.")
+    if not es_email_heineken(solicitante_email):
+        raise HTTPException(400, "Email del solicitante debe ser de dominio Heineken.")
+    if not es_email_heineken(jefe_email):
+        raise HTTPException(400, "Email del jefe directo debe ser de dominio Heineken.")
 
     nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde = _sanitize_common(
         nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde
@@ -75,7 +81,8 @@ async def submit(
     if evidencias:
         evid_dir.mkdir(exist_ok=True)
         for f in evidencias:
-            if not f.filename: continue
+            if not f.filename:
+                continue
             ext = (f.filename or "").lower()
             if not (ext.endswith(".png") or ext.endswith(".jpg") or ext.endswith(".jpeg")):
                 continue
@@ -95,16 +102,17 @@ async def submit(
     }
     docx_path = folder / f"{memo_id}.docx"
     out_doc = generate_doc_from_template(ctx, evid_paths, docx_path)
-    docx_path = docx_path if out_doc.suffix == ".docx" else out_doc  # could be fallback .txt
+    # Si el generador devolviera otro sufijo, úsalo igual
+    docx_path = docx_path if out_doc.suffix == ".docx" else out_doc
     pdf_path = try_export_pdf(docx_path) if docx_path.suffix == ".docx" else None
     pdf_str = str(pdf_path) if pdf_path else ""
 
     db_exec("""
-    INSERT INTO memos(
-        id, memo_id, corr_id, created_at, solicitante_email, area_sol, dni, nombre, area, cargo, equipo,
-        jefe_email, inciso_num, inciso_texto, hecho_que, hecho_cuando, hecho_donde,
-        tipo, fecha_limite, estado, legal_aprobado, docx_path, pdf_path, evid_dir
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO memos(
+            id, memo_id, corr_id, created_at, solicitante_email, area_sol, dni, nombre, area, cargo, equipo,
+            jefe_email, inciso_num, inciso_texto, hecho_que, hecho_cuando, hecho_donde,
+            tipo, fecha_limite, estado, legal_aprobado, docx_path, pdf_path, evid_dir
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """, (
         uid, memo_id, corr_id, datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         solicitante_email, area_sol, dni, nombre, area, cargo, equipo,
@@ -137,7 +145,6 @@ async def submit(
         """
         send_mail([solicitante_email], f"[Solicitud enviada] {memo_id} - {nombre}", notif_html, attachments=None, cc=None)
 
-    # JSON response for SPA frontend
     created_str = datetime.now().strftime("%d/%m/%Y %H:%M")
     pdf_or_docx_url = f"{BASE_URL}/file?path={pdf_str}" if pdf_str else f"{BASE_URL}/file?path={docx_path}"
     return {
@@ -151,6 +158,7 @@ async def submit(
         "new_url": f"{BASE_URL}/form/",
         "success_url": f"/result/success.html?memo_id={memo_id}&corr_id={corr_id}&email={solicitante_email}&pdf={pdf_or_docx_url}"
     }
+
 
 @router.post("/update/{id}")
 async def update_memo(
@@ -170,11 +178,17 @@ async def update_memo(
     evidencias: List[UploadFile] = File(None)
 ):
     db_init()
-    if not validar_dni(dni): raise HTTPException(400, "DNI debe tener 8 dígitos.")
-    if not validar_email(solicitante_email): raise HTTPException(400, "Email del solicitante inválido.")
-    if not validar_email(jefe_email): raise HTTPException(400, "Email del jefe directo inválido.")
-    if not es_email_heineken(solicitante_email): raise HTTPException(400, "Email del solicitante debe ser de dominio Heineken.")
-    if not es_email_heineken(jefe_email): raise HTTPException(400, "Email del jefe directo debe ser de dominio Heineken.")
+
+    if not validar_dni(dni):
+        raise HTTPException(400, "DNI debe tener 8 dígitos.")
+    if not validar_email(solicitante_email):
+        raise HTTPException(400, "Email del solicitante inválido.")
+    if not validar_email(jefe_email):
+        raise HTTPException(400, "Email del jefe directo inválido.")
+    if not es_email_heineken(solicitante_email):
+        raise HTTPException(400, "Email del solicitante debe ser de dominio Heineken.")
+    if not es_email_heineken(jefe_email):
+        raise HTTPException(400, "Email del jefe directo debe ser de dominio Heineken.")
 
     nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde = _sanitize_common(
         nombre, area, cargo, hecho_que, hecho_cuando, hecho_donde
@@ -193,19 +207,21 @@ async def update_memo(
 
     evid_paths: List[Path] = []
     if evidencias:
-        # (re)use evidences folder
         evid_dir = Path(current_evid_dir) if current_evid_dir else None
         if evid_dir and evid_dir.exists():
             for f in evid_dir.glob("*"):
-                if f.is_file(): f.unlink()
+                if f.is_file():
+                    f.unlink()
         else:
             folder = OUT_DIR / datetime.now().strftime("%Y/%m") / memo_id
             evid_dir = folder / "evidencias"
             evid_dir.mkdir(parents=True, exist_ok=True)
         for f in evidencias:
-            if not f.filename: continue
+            if not f.filename:
+                continue
             ext = (f.filename or "").lower()
-            if not (ext.endswith(".png") or ext.endswith(".jpg") or ext.endswith(".jpeg")): continue
+            if not (ext.endswith(".png") or ext.endswith(".jpg") or ext.endswith(".jpeg")):
+                continue
             dest = evid_dir / f.filename
             with dest.open("wb") as w:
                 w.write(await f.read())
@@ -223,7 +239,9 @@ async def update_memo(
         "fecha_limite": fecha_limite, "num": inciso_num
     }
 
-    docx_path = Path(current_docx_path) if current_docx_path else (OUT_DIR / datetime.now().strftime("%Y/%m") / memo_id / f"{memo_id}.docx")
+    docx_path = Path(current_docx_path) if current_docx_path else (
+        OUT_DIR / datetime.now().strftime("%Y/%m") / memo_id / f"{memo_id}.docx"
+    )
     out_doc = generate_doc_from_template(ctx, evid_paths, docx_path)
     docx_path = docx_path if out_doc.suffix == ".docx" else out_doc
     pdf_path = try_export_pdf(docx_path) if docx_path.suffix == ".docx" else None
@@ -253,7 +271,7 @@ async def update_memo(
         id
     ))
 
-    # email notify legal again
+    # Avisos
     legal_review_link = f"{BASE_URL}/legal/review.html?id={id}"
     html = f"""
     <p>Memo <b>{memo_id}</b> ha sido actualizado y requiere nueva revisión.</p>
@@ -280,9 +298,11 @@ async def update_memo(
 
     return {"ok": True, "id": id, "memo_id": memo_id, "review_url": f"/legal/review.html?id={id}"}
 
+
 @router.get("/api/memo/{id}")
-def api_get_memo(id: str, Authorization: str | None = Header(None)):  # legal/rrhh/dash
-    require_auth(Authorization, ["legal","rrhh","dash"])
+def api_get_memo(id: str, Authorization: str | None = Header(None)):
+    # legal/rrhh/dash
+    require_auth(Authorization, ["legal", "rrhh", "dash"])
     row = db_one("""
         SELECT id, memo_id, corr_id, created_at, solicitante_email, area_sol, dni, nombre, area, cargo, equipo,
                jefe_email, inciso_num, inciso_texto, hecho_que, hecho_cuando, hecho_donde, tipo, fecha_limite,
@@ -291,36 +311,40 @@ def api_get_memo(id: str, Authorization: str | None = Header(None)):  # legal/rr
     """, (id,))
     if not row:
         raise HTTPException(status_code=404, detail="Memo no encontrado")
-    keys = ["id","memo_id","corr_id","created_at","solicitante_email","area_sol","dni","nombre","area","cargo","equipo",
-            "jefe_email","inciso_num","inciso_texto","hecho_que","hecho_cuando","hecho_donde","tipo","fecha_limite",
-            "estado","legal_aprobado","legal_comentario","docx_path","pdf_path"]
-    data = {k:v for k,v in zip(keys,row)}
-    return data
+    keys = [
+        "id","memo_id","corr_id","created_at","solicitante_email","area_sol","dni","nombre","area","cargo","equipo",
+        "jefe_email","inciso_num","inciso_texto","hecho_que","hecho_cuando","hecho_donde","tipo","fecha_limite",
+        "estado","legal_aprobado","legal_comentario","docx_path","pdf_path"
+    ]
+    return {k: v for k, v in zip(keys, row)}
+
 
 @router.get("/api/memos")
 def api_memos(buscar: str = "", estado: str = "", limit: int = 50, Authorization: str | None = Header(None)):
-    require_auth(Authorization, ["dash","rrhh","legal"])
-    require_auth(Authorization, ["dash","rrhh","legal"])
+    require_auth(Authorization, ["dash", "rrhh", "legal"])
+
     from ..core.config import DB_PATH
     import sqlite3
     con = sqlite3.connect(str(DB_PATH))
     cur = con.cursor()
+
     where = []
     params = []
     if buscar:
         where.append("(dni LIKE ? OR nombre LIKE ? OR memo_id LIKE ?)")
         s = f"%{buscar}%"
-        params.extend([s,s,s])
+        params.extend([s, s, s])
     if estado:
         where.append("estado = ?")
         params.append(estado)
+
     where_clause = ("WHERE " + " AND ".join(where)) if where else ""
     cur.execute(f"""
-      SELECT memo_id, dni, nombre, area, cargo, equipo, tipo, estado, 
-             legal_aprobado, created_at, fecha_limite, id
-      FROM memos {where_clause}
-      ORDER BY created_at DESC
-      LIMIT ?
+        SELECT memo_id, dni, nombre, area, cargo, equipo, tipo, estado,
+               legal_aprobado, created_at, fecha_limite, id
+        FROM memos {where_clause}
+        ORDER BY created_at DESC
+        LIMIT ?
     """, (*params, limit))
     rows = cur.fetchall()
     con.close()
@@ -333,6 +357,7 @@ def api_memos(buscar: str = "", estado: str = "", limit: int = 50, Authorization
             "created_at": r[9], "fecha_limite": r[10], "id": r[11]
         })
     return {"memos": memos, "total": len(memos)}
+
 
 @router.get("/api/metrics")
 def api_metrics(Authorization: str | None = Header(None)):
@@ -391,16 +416,13 @@ def api_metrics(Authorization: str | None = Header(None)):
     memos_por_tipo = [{"tipo": row[0], "cantidad": row[1]} for row in cur.fetchall()]
 
     cur.execute("""
-        SELECT 
-            strftime('%Y-%W', created_at) as semana,
-            COUNT(*) as cantidad
+        SELECT strftime('%Y-%W', created_at) as semana, COUNT(*) as cantidad
         FROM memos 
         WHERE created_at >= date('now', '-4 weeks')
         GROUP BY strftime('%Y-%W', created_at)
         ORDER BY semana
     """)
     tendencia_semanal = [{"semana": row[0], "cantidad": row[1]} for row in cur.fetchall()]
-
     con.close()
 
     return {
@@ -416,59 +438,64 @@ def api_metrics(Authorization: str | None = Header(None)):
         "memos_por_tipo": memos_por_tipo,
         "tendencia_semanal": tendencia_semanal
     }
+
+
 @router.get("/api/summary")
 def api_summary(role: str, Authorization: str = Header(None)):
     role = (role or "").lower()
     if role not in ("legal", "rrhh"):
         raise HTTPException(status_code=400, detail="Rol inválido")
 
-    # Permite consultar al propio rol o al dashboard
+    # permite consultar al propio rol o al dashboard
     require_auth(Authorization, [role, "dash"])
 
     if role == "legal":
-        # Aprobados / No aprobados se basan en la decisión de Legal
         approved = db_one("SELECT COUNT(*) FROM memos WHERE UPPER(legal_aprobado)='APROBADO'")[0]
         not_appr = db_one("SELECT COUNT(*) FROM memos WHERE UPPER(legal_aprobado)='OBSERVADO'")[0]
-
-        # Pendientes: Legal AÚN no decidió (NULL o cadena vacía), y además
-        # excluimos estados finales de RRHH para no “ensuciar” la cola de Legal
-        pending  = db_one("""
+        pending = db_one("""
             SELECT COUNT(*) FROM memos
             WHERE COALESCE(legal_aprobado,'')=''
-            AND estado NOT IN ('Observado Legal','Emitido','Aprobado RRHH','Observado RRHH')
+              AND estado NOT IN ('Observado Legal','Emitido','Aprobado RRHH','Observado RRHH')
         """)[0]
 
-        rows = db_all("""
+        pending_rows = db_all("""
             SELECT id, memo_id, dni, nombre, equipo, created_at
             FROM memos
             WHERE COALESCE(legal_aprobado,'')=''
-            AND estado NOT IN ('Observado Legal','Emitido','Aprobado RRHH','Observado RRHH')
+              AND estado NOT IN ('Observado Legal','Emitido','Aprobado RRHH','Observado RRHH')
             ORDER BY datetime(created_at) ASC
             LIMIT 50
         """)
-
+        approved_rows = db_all("""
+            SELECT id, memo_id, dni, nombre, equipo, created_at
+            FROM memos
+            WHERE UPPER(legal_aprobado)='APROBADO'
+            ORDER BY datetime(created_at) DESC
+            LIMIT 50
+        """)
+        rejected_rows = db_all("""
+            SELECT id, memo_id, dni, nombre, equipo, created_at
+            FROM memos
+            WHERE UPPER(legal_aprobado)='OBSERVADO'
+            ORDER BY datetime(created_at) DESC
+            LIMIT 50
+        """)
     else:
-        # RRHH — tus estados reales:
-        # Aprobados/emitidos: 'Emitido' o 'Aprobado RRHH'
-        # No aprobados: 'Observado RRHH'
-        # Pendientes: legal_aprobado='APROBADO' y NO en ninguno de los anteriores
         approved = db_one("""
             SELECT COUNT(*) FROM memos
             WHERE estado IN ('Emitido','Aprobado RRHH')
         """)[0]
-
-        pending  = db_one("""
+        not_appr = db_one("""
+            SELECT COUNT(*) FROM memos
+            WHERE estado='Observado RRHH'
+        """)[0]
+        pending = db_one("""
             SELECT COUNT(*) FROM memos
             WHERE legal_aprobado='APROBADO'
               AND estado NOT IN ('Emitido','Aprobado RRHH','Observado RRHH')
         """)[0]
 
-        not_appr = db_one("""
-            SELECT COUNT(*) FROM memos
-            WHERE estado='Observado RRHH'
-        """)[0]
-
-        rows = db_all("""
+        pending_rows = db_all("""
             SELECT id, memo_id, dni, nombre, equipo, created_at
             FROM memos
             WHERE legal_aprobado='APROBADO'
@@ -476,13 +503,31 @@ def api_summary(role: str, Authorization: str = Header(None)):
             ORDER BY datetime(created_at) ASC
             LIMIT 50
         """)
+        approved_rows = db_all("""
+            SELECT id, memo_id, dni, nombre, equipo, created_at
+            FROM memos
+            WHERE estado IN ('Emitido','Aprobado RRHH')
+            ORDER BY datetime(created_at) DESC
+            LIMIT 50
+        """)
+        rejected_rows = db_all("""
+            SELECT id, memo_id, dni, nombre, equipo, created_at
+            FROM memos
+            WHERE estado='Observado RRHH'
+            ORDER BY datetime(created_at) DESC
+            LIMIT 50
+        """)
 
-    pending_rows = [
-        {"id": r[0], "memo_id": r[1], "dni": r[2], "nombre": r[3], "equipo": r[4], "created_at": r[5]}
-        for r in rows
-    ]
+    def pack(rows):
+        return [
+            {"id": r[0], "memo_id": r[1], "dni": r[2], "nombre": r[3], "equipo": r[4], "created_at": r[5]}
+            for r in rows
+        ]
+
     return {
         "role": role,
         "counts": {"approved": approved, "pending": pending, "not_approved": not_appr},
-        "pending": pending_rows
+        "pending": pack(pending_rows),
+        "approved_list": pack(approved_rows),
+        "not_approved_list": pack(rejected_rows),
     }

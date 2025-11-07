@@ -16,3 +16,20 @@ table{width:100%;border-collapse:collapse}
 th,td{padding:12px;text-align:left;border-bottom:1px solid #f1f5f9;font-size:14px} th{background:#f8faf8;font-weight:900;color:#374151}
 .row-actions .btn{padding:6px 10px;border-radius:8px;font-size:12px}
 .footer{color:#94a3b8;font-size:12px;text-align:center;padding:16px 0 30px}
+/* Tabs Heineken */
+.tabs{display:flex;gap:8px;margin:0 0 14px 0;flex-wrap:wrap}
+.tab{
+  background:#fff;border:1.5px solid #e5e7eb;border-radius:999px;
+  padding:8px 12px;cursor:pointer;font-weight:800;color:#334155;display:inline-flex;align-items:center;gap:8px
+}
+.tab .pill{background:#f1f5f9;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:900}
+.tab.active{border-color:#13670B;color:#13670B;box-shadow:0 0 0 3px rgba(19,103,11,.08)}
+.tab:hover{border-color:#94a3b8}
+.table .empty{color:#64748b;text-align:center;padding:28px}
+/* Cards clicables (sin romper otras vistas) */
+.stat{cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.stat:hover{border-color:#94a3b8}
+.stat.active{border-color:var(--hnk-green);box-shadow:0 0 0 3px rgba(19,103,11,.08);background:#ffffff}
+.stat:focus-visible{outline:3px solid rgba(19,103,11,.35);outline-offset:2px}
+
+

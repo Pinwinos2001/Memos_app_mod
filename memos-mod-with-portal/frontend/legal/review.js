@@ -36,7 +36,7 @@ async function load() {
   const r = await authFetch('/api/memo/' + encodeURIComponent(id));
   if (!r.ok) { memoDiv.textContent = 'No encontrado'; return; }
   const d = await r.json();
-
+  
   memoDiv.innerHTML = `
     <p><b>${d.nombre || '-'}</b> (DNI ${d.dni || '-'}) — ${d.area || ''} / ${d.cargo || ''}</p>
     <p><b>Tipo:</b> ${d.tipo || '-'}<br>
@@ -44,7 +44,7 @@ async function load() {
     <p><b>Hechos:</b> ${d.hecho_que || '-'}<br>
        <b>Cuándo:</b> ${d.hecho_cuando || '-'} &nbsp;|&nbsp; <b>Dónde:</b> ${d.hecho_donde || '-'}</p>
   `;
-
+  
   const docx = d.docx_path ? `/file?path=${encodeURIComponent(d.docx_path)}` : '';
   const pdf  = d.pdf_path  ? `/file?path=${encodeURIComponent(d.pdf_path)}`  : '';
   downloads.innerHTML =
@@ -63,17 +63,16 @@ function goPortal(nextUrlFromServer) {
 if (form) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
     // Qué botón disparó el submit (APROBAR / OBSERVAR)
-    const submitter = e.submitter; // <button name="decision" value="...">
+    const submitter = e.submitter;
     const decision = (submitter && submitter.name === 'decision')
       ? (submitter.value || 'APROBAR')
       : 'APROBAR';
-
+    
     const fd = new FormData(form);
-    // asegura que 'decision' viaje aunque FormData no incluya el submitter
     fd.set('decision', decision);
-
+    
     // (Opcional) si observa sin comentario, pedir confirmación
     if (decision === 'OBSERVAR') {
       const txt = (fd.get('comentario') || '').trim();
@@ -82,17 +81,36 @@ if (form) {
         if (!ok) return;
       }
     }
-
+    
+    // ✨ MOSTRAR LOADER con mensaje según decisión
+    if(window.HnkLoader) {
+      const msg = decision === 'APROBAR' 
+        ? 'Aprobando memo...' 
+        : 'Registrando observación...';
+      const sub = decision === 'APROBAR'
+        ? 'Enviando a RRHH para emisión'
+        : 'Notificando al solicitante';
+      HnkLoader.show(msg, sub);
+    }
+    
     try {
       const r = await authFetch('/legal_approve', { method: 'POST', body: fd });
       const d = await r.json().catch(() => ({}));
+      
       if (r.ok && d && d.ok) {
+        // Éxito - el loader se ocultará cuando redirija
         goPortal(d.next_url);
       } else {
+        // Error del servidor
+        if(window.HnkLoader) HnkLoader.hide();
+        alert('Hubo un problema al procesar la decisión. Serás redirigido al portal.');
         goPortal(d && d.next_url);
       }
     } catch (err) {
+      // Error de red
+      if(window.HnkLoader) HnkLoader.hide();
       console.error(err);
+      alert('Error de conexión. Serás redirigido al portal.');
       goPortal();
     }
   });
