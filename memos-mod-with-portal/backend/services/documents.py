@@ -12,6 +12,23 @@ except Exception:
     Document = None  # type: ignore
     Inches = None  # type: ignore
 
+
+import subprocess
+from pathlib import Path
+
+def try_export_pdf_linux(path_docx: Path) -> Path | None:
+    out_pdf = path_docx.with_suffix(".pdf")
+    try:
+        subprocess.run(
+            ["soffice", "--headless", "--convert-to", "pdf", "--outdir", str(path_docx.parent), str(path_docx)],
+            check=True
+        )
+        return out_pdf
+    except Exception as e:
+        print("Error convirtiendo:", e)
+        return None
+
+
 def _replace_in_paragraph(par, mapping: Dict[str, str]):
     for key, val in mapping.items():
         if key in par.text:
@@ -48,18 +65,3 @@ def generate_doc_from_template(ctx: Dict[str,str], evid_paths: List[Path], out_d
                 pass
     doc.save(out_docx)
     return out_docx
-
-def try_export_pdf(path_docx: Path) -> Optional[Path]:
-    if docx2pdf_convert is None:
-        return None
-    out_pdf = path_docx.with_suffix(".pdf")
-    if pythoncom:
-        pythoncom.CoInitialize()
-    try:
-        docx2pdf_convert(str(path_docx), str(out_pdf))
-        return out_pdf
-    except Exception:
-        return None
-    finally:
-        if pythoncom:
-            pythoncom.CoUninitialize()

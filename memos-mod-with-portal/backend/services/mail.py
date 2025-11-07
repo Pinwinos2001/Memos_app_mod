@@ -5,6 +5,11 @@ from datetime import datetime
 from ..core.config import OUTLOOK, RRHH_JEFE_EMAIL, RRHH_EQUIPO_EMAIL, LEGAL_JEFE_EMAIL, LEGAL_EQUIPO_EMAIL, LEGAL_EMAIL, RRHH_EMAIL, OUT_DIR
 from ..core.compat import win32, pythoncom
 
+import base64
+import json
+import pathlib
+import requests
+
 def send_mail_outlook(to, subject, html, attachments=None, cc=None):
     if platform.system() != "Windows" or win32 is None:
         raise RuntimeError("Outlook no disponible.")
@@ -26,6 +31,7 @@ def send_mail_outlook(to, subject, html, attachments=None, cc=None):
         if pythoncom:
             pythoncom.CoUninitialize()
 
+# No se utiliza
 def send_mail_preview(to, subject, html, attachments=None, cc=None):
     prev_dir = OUT_DIR / "mails"
     prev_dir.mkdir(parents=True, exist_ok=True)
@@ -37,6 +43,8 @@ def send_mail_preview(to, subject, html, attachments=None, cc=None):
     <p>Adjuntos: {', '.join([Path(a).name for a in (attachments or [])])}</p>
     """
     f.write_text(body, encoding="utf-8")
+
+
 
 def get_legal_email() -> str:
     if LEGAL_JEFE_EMAIL:
@@ -64,3 +72,23 @@ def send_mail(to, subject, html, attachments=None, cc=None):
         except Exception:
             pass
     return send_mail_preview(to, subject, html, attachments, cc)
+
+def file_to_base64(path):
+    p = pathlib.Path(path)
+    with p.open("rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
+
+def build_attachments(paths_with_types):
+    """
+    paths_with_types: lista de tuplas (ruta, contentType)
+    retorna: lista de objetos {fileName, contentBytes, contentType}
+    """
+    atts = []
+    for path, ctype in paths_with_types:
+        p = pathlib.Path(path)
+        atts.append({
+            "fileName": p.name,
+            "contentBytes": file_to_base64(p),
+            "contentType": ctype
+        })
+    return atts
