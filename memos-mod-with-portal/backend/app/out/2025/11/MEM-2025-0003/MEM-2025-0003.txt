@@ -1,0 +1,2 @@
+[PLACEHOLDER] Falta plantilla o python-docx.
+{'a_nombre': 'Carlos Sanchez', 'a_cargo': 'Practicante', 'memo_id': 'MEM-2025-0003', 'tipo': 'Despido', 'fecha': '09/11/2025', 'asunto': 'Incumplimiento Art. 35 inciso 2', 'art_texto': 'Obedecer órdenes e instrucciones referidas a sus labores y acatar las disposiciones de sus superiores jerárquicos.', 'hecho_que': 'Llega tarde', 'hecho_cuando': '08/11/2025', 'hecho_donde': 'Oficina Surco', 'fecha_limite': '12/11/2025', 'num': 2}
