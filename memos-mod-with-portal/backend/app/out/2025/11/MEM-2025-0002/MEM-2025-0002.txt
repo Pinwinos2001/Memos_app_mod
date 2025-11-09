@@ -1,0 +1,2 @@
+[PLACEHOLDER] Falta plantilla o python-docx.
+{'a_nombre': 'Carlos Sanchez', 'a_cargo': 'Practicante', 'memo_id': 'MEM-2025-0002', 'tipo': 'Licencia sin goce (1 día)', 'fecha': '09/11/2025', 'asunto': 'Incumplimiento Art. 35 inciso 1', 'art_texto': 'Actuar con honestidad, lealtad, fidelidad, diligencia y buena fe en todas las labores e instrucciones del jefe inmediato.', 'hecho_que': 'Se porto mal', 'hecho_cuando': '13/06/2025', 'hecho_donde': 'Oficinas Surco', 'fecha_limite': '12/11/2025', 'num': 1}
