@@ -1,0 +1,61 @@
+# ───────────────────────────────
+# Python / FastAPI
+# ───────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# ───────────────────────────────
+# Virtual environment
+# ───────────────────────────────
+venv/
+.env/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ───────────────────────────────
+# Configuración local / secretos
+# ───────────────────────────────
+*.env
+*.env.*
+.env.local
+config.local.json
+
+# ───────────────────────────────
+# Base de datos y archivos generados
+# ───────────────────────────────
+memos.db
+*.db
+*.sqlite
+*.sqlite3
+app/out/
+out/
+uploads/
+__output__/
+
+# ───────────────────────────────
+# Frontend build / caches
+# ───────────────────────────────
+node_modules/
+dist/
+build/
+*.map
+*.log
+
+# ───────────────────────────────
+# IDEs / sistema
+# ───────────────────────────────
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

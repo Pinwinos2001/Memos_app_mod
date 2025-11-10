@@ -34,7 +34,7 @@ def legal_approve(
             "UPDATE memos SET legal_aprobado='APROBADO', legal_comentario=?, estado='Aprobado Legal - Pendiente RRHH' WHERE id=?",
             (comentario, id),
         )
-        review_link = f"{BASE_URL}/rrhh/review.html?id={id}"
+        review_link = f"{BASE_URL}/apps/memos/rrhh/review.html?id={id}"
         html_rrhh = f"""
         <p>Memo <b>{memo_id}</b> aprobado por Legal.</p>
         <p>Trabajador: <b>{nombre}</b> (DNI {dni})</p>
@@ -56,14 +56,14 @@ def legal_approve(
             send_mail([solicitante_email], f"[Aprobado por Legal] {memo_id} - {nombre}", notif_html, attachments=None, cc=None)
 
         # next_url por si el front lo quiere usar
-        return {"ok": True, "status": "Pendiente revisión de RRHH", "memo_id": memo_id, "next_url": "/portal/index.html"}
+        return {"ok": True, "status": "Pendiente revisión de RRHH", "memo_id": memo_id, "next_url": "/apps/memos/portal/index.html"}
 
     elif d == "OBSERVAR":
         db_exec(
             "UPDATE memos SET legal_aprobado='OBSERVADO', legal_comentario=?, estado='Observado Legal' WHERE id=?",
             (comentario, id),
         )
-        edit_link = f"{BASE_URL}/edit/index.html?id={id}"
+        edit_link = f"{BASE_URL}/apps/memos/edit/index.html?id={id}"
         html_obs = f"""
         <p>Su solicitud de memo <b>{memo_id}</b> ha sido observada por Legal.</p>
         <p><b>Observaciones:</b></p>
@@ -104,7 +104,7 @@ def approve(
     if (legal_aprobado or "").upper() != "APROBADO":
         raise HTTPException(403, "Este memo debe ser aprobado por Legal primero.")
 
-    edit_link = f"{BASE_URL}/edit/index.html?id={id}"
+    edit_link = f"{BASE_URL}/apps/memos/edit/index.html?id={id}"
 
     if d == "APROBAR":
         # marca aprobado y luego emitido
@@ -142,7 +142,7 @@ def approve(
             cc_list = get_rrhh_emails()
             send_mail([solicitante_email], f"[Observado RRHH] {memo_id}", html_obs, attachments=None, cc=cc_list)
 
-        return {"ok": True, "status": "Observado por RRHH", "memo_id": memo_id, "next_url": "/portal/index.html"}
+        return {"ok": True, "status": "Observado por RRHH", "memo_id": memo_id, "next_url": "apps/memos/portal/"}
 
     else:
         raise HTTPException(400, "Decisión inválida. Use APROBAR u OBSERVAR.")

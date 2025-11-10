@@ -1,5 +1,7 @@
+const base = window.APP_CONFIG?.API_BASE_URL || "";
+
 async function cargarIncisos(){
-  const r = await fetch('/incisos_json');
+  const r = await fetch(`${base}/api/public/incisos_json`);
   const data = await r.json();
   const sel = document.getElementById('inciso_select');
   sel.innerHTML = '';
@@ -12,6 +14,7 @@ async function cargarIncisos(){
   });
   sel.dispatchEvent(new Event('change'));
 }
+
 document.addEventListener('change', e=>{
   if(e.target && e.target.id === 'inciso_select'){
     const opt = e.target.selectedOptions[0];
@@ -36,7 +39,7 @@ async function checkDNI(){
   const v = (dniInput.value||'').trim();
   if(/^\d{8}$/.test(v)){
     try{
-      const r = await fetch('/lookup_json?dni='+v);
+      const r = await fetch(`${base}/api/public/lookup_json?dni=`+v);
       const d = await r.json();
       info.innerHTML = `Historial: <b>${d.previos}</b> previo(s) <span class="legend-status">Orden #${d.orden} – ${d.tipo}</span>`;
     }catch{ info.textContent=''; }
@@ -86,12 +89,15 @@ form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   submitBtn.disabled = true;
   const fd = new FormData(form);
-  const r = await fetch('/submit', { method: 'POST', body: fd });
+  const r = await fetch(`${base}/api/memos/submit`, { method: 'POST', body: fd });
+  if (!r.ok) {
+    alert(`Error del servidor (${r.status})`);
+    submitBtn.disabled = false;
+    return;
+  }
   const data = await r.json();
-  if(data && data.success_url){
-    window.location.href = data.success_url;
-  }else if(data && data.ok){
-    window.location.href = `/result/success.html?memo_id=${encodeURIComponent(data.memo_id)}&corr_id=${encodeURIComponent(data.corr_id)}&email=${encodeURIComponent(fd.get('solicitante_email')||'')}&pdf=${encodeURIComponent(data.pdf_url||'')}`;
+  if(data && data.ok){
+    window.location.href = `../result/success.html?memo_id=${encodeURIComponent(data.memo_id)}&corr_id=${encodeURIComponent(data.corr_id)}&email=${encodeURIComponent(fd.get('solicitante_email')||'')}&pdf=${encodeURIComponent(data.id||'')}`;
   }else{
     alert('Enviado. Si no te redirige, revisa el correo de confirmación.');
   }

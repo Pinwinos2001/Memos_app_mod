@@ -18,7 +18,8 @@ DB_PATH = PROJECT_ROOT / "memos.db"
 TEMPLATE_PATH = TEMPLATES_DIR / "memo_formato.docx"
 
 # Environment
-BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
+BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8080")
+BACK_URL = os.getenv("BACK_URL", "http://127.0.0.1:8000")
 RRHH_JEFE_EMAIL   = os.getenv("RRHH_JEFE_EMAIL", "")
 RRHH_EQUIPO_EMAIL = os.getenv("RRHH_EQUIPO_EMAIL", "")
 LEGAL_JEFE_EMAIL  = os.getenv("LEGAL_JEFE_EMAIL", "")

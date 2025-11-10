@@ -1,3 +1,5 @@
+const API_BASE = window.APP_CONFIG?.API_BASE_URL || "";
+
 function qs(k){ return new URLSearchParams(location.search).get(k); }
 const role = (qs('role')||'').toLowerCase() || 'dash';
 const nextUrl = qs('next') || '';
@@ -6,7 +8,7 @@ document.getElementById('btn').addEventListener('click', async ()=>{
   const key = document.getElementById('key').value.trim();
   if(!key){ return; }
   try{
-    const r = await fetch('/auth/login', {
+    const r = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ role, key })

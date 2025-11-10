@@ -4,11 +4,13 @@
   const token = sessionStorage.getItem('memo_token_' + role);
   if (!token) {
     const here = encodeURIComponent(location.href);
-    location.href = `/auth/key.html?role=${role}&next=${here}`;
+    location.href = `/apps/memos/auth/key.html?role=${role}&next=${here}`;
   } else {
     window.__AUTH_TOKEN__ = token;
   }
 })();
+
+const API_BASE = window.APP_CONFIG?.API_BASE_URL || "";
 
 async function authFetch(url, options) {
   options = options || {};
@@ -32,7 +34,7 @@ if (form && id) {
 
 async function load() {
   if (!id) { memoDiv.textContent = 'Falta id'; return; }
-  const r = await authFetch('/api/memo/' + encodeURIComponent(id));
+  const r = await authFetch(`${API_BASE}/api/memos/` + encodeURIComponent(id));
   if (!r.ok) { memoDiv.textContent = 'No encontrado'; return; }
   const d = await r.json();
 
@@ -44,36 +46,83 @@ async function load() {
        <b>Cuándo:</b> ${d.hecho_cuando || '-'} &nbsp;|&nbsp; <b>Dónde:</b> ${d.hecho_donde || '-'}</p>
   `;
 
-  const docx = d.docx_path ? `/file?path=${encodeURIComponent(d.docx_path)}` : '';
-  const pdf  = d.pdf_path  ? `/file?path=${encodeURIComponent(d.pdf_path)}`  : '';
-  downloads.innerHTML =
-    (docx ? `<a href="${docx}" target="_blank">Word: descargar</a>` : '') +
-    (pdf  ? ` &nbsp;|&nbsp; <a href="${pdf}" target="_blank">PDF: descargar</a>` : '');
+  // Solo muestra el botón si existe el PDF en BD
+  downloads.innerHTML = `
+    <button id="btnDownloadPDF" class="btn btn-outline">Descargar PDF</button>
+  `;
+  document
+    .getElementById("btnDownloadPDF")
+    .addEventListener("click", () => downloadPDF(id, d.memo_id));
+}
+
+async function downloadPDF(memoId, memoCode = "documento") {
+  const url = `${API_BASE}/api/files/memo_file/${encodeURIComponent(memoId)}`;
+
+  try {
+    const resp = await fetch(url, { method: "GET" });
+    if (!resp.ok) {
+      alert("No se pudo obtener el documento. Código: " + resp.status);
+      return;
+    }
+
+    // Convertir a blob y forzar descarga con nombre
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `${memoCode}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+  } catch (err) {
+    console.error("Error al descargar PDF:", err);
+    alert("Ocurrió un error al intentar descargar el documento.");
+  }
 }
 
 function goPortal(nextUrlFromServer) {
   try { if (window.opener) window.opener.postMessage({ t: 'memos:refresh' }, '*'); } catch (e) {}
-  const next = nextUrlFromServer || '/portal/index.html';
+  const next = nextUrlFromServer || '/apps/memos/portal/';
   location.replace(next);
 }
 
 if (form) {
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(form);
-    try {
-      const r = await authFetch('/approve', { method: 'POST', body: fd });
-      const d = await r.json().catch(() => ({}));
-      if (r.ok && d && d.ok) {
-        goPortal(d.next_url);
-      } else {
-        goPortal(d && d.next_url);
-      }
-    } catch (err) {
-      console.error(err);
-      goPortal();
-    }
+  form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const submitter = e.submitter;
+  const decision =
+    submitter && submitter.name === "decision"
+      ? submitter.value || "APROBAR"
+      : "APROBAR";
+
+  const fd = new FormData(form);
+
+  // Aseguramos que viaje 'decision'
+  fd.set("decision", decision);
+
+  // Aseguramos que viaje 'id'
+  if (!fd.get("id") && idFromUrl) {
+    fd.set("id", idFromUrl);
+  }
+
+  const resp = await authFetch(`${API_BASE}/api/review/approve`, {
+    method: "POST",
+    body: fd, // 👈 Esto genera multipart/form-data, perfecto para Form(...)
   });
+
+  const data = await resp.json().catch(() => ({}));
+
+  if (resp.ok && data.ok) {
+    goPortal(data.next_url);
+  } else {
+    console.error("Error approve:", data);
+    alert("No se pudo procesar la aprobación.");
+  }
+});
 }
 
 load();

@@ -1,0 +1,35 @@
+:root{ --hnk-green:#13670B; --ink:#0f172a; --muted:#64748b; --bg:#f6f9f6 }
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:linear-gradient(180deg, rgba(19,103,11,.95), rgba(19,103,11,.85));color:#fff}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{height:34px} .brand h1{margin:0;font-weight:900;font-size:1.35rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:0;cursor:pointer;padding:10px 14px;border-radius:12px;font-weight:800;letter-spacing:.3px;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:#fff;color:var(--hnk-green)} .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.7)} .btn-outline:hover{border-color:#fff}
+.main{padding:18px 20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:18px}
+.stat{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px}
+.stat .n{font-size:34px;font-weight:900;color:#2563eb;line-height:1}
+.stat .l{margin-top:6px;color:#6b7280;font-weight:700}
+.table{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #f1f5f9;font-size:14px} th{background:#f8faf8;font-weight:900;color:#374151}
+.row-actions .btn{padding:6px 10px;border-radius:8px;font-size:12px}
+.footer{color:#94a3b8;font-size:12px;text-align:center;padding:16px 0 30px}
+/* Tabs Heineken */
+.tabs{display:flex;gap:8px;margin:0 0 14px 0;flex-wrap:wrap}
+.tab{
+  background:#fff;border:1.5px solid #e5e7eb;border-radius:999px;
+  padding:8px 12px;cursor:pointer;font-weight:800;color:#334155;display:inline-flex;align-items:center;gap:8px
+}
+.tab .pill{background:#f1f5f9;border-radius:999px;padding:2px 8px;font-size:12px;font-weight:900}
+.tab.active{border-color:#13670B;color:#13670B;box-shadow:0 0 0 3px rgba(19,103,11,.08)}
+.tab:hover{border-color:#94a3b8}
+.table .empty{color:#64748b;text-align:center;padding:28px}
+/* Cards clicables (sin romper otras vistas) */
+.stat{cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.stat:hover{border-color:#94a3b8}
+.stat.active{border-color:var(--hnk-green);box-shadow:0 0 0 3px rgba(19,103,11,.08);background:#ffffff}
+.stat:focus-visible{outline:3px solid rgba(19,103,11,.35);outline-offset:2px}
+
+

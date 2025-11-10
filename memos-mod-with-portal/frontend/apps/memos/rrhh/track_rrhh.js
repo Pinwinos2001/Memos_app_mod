@@ -3,11 +3,13 @@
   var token = sessionStorage.getItem('memo_token_' + role);
   if (!token) {
     var here = encodeURIComponent(location.href);
-    location.href = '/auth/key.html?role=' + role + '&next=' + here;
+    location.href = '/apps/memos/auth/key.html?role=' + role + '&next=' + here;
   } else {
     window.__AUTH_TOKEN__ = token;
   }
 })();
+
+const API_BASE = window.APP_CONFIG?.API_BASE_URL || "";
 
 function authFetch(url, options) {
   options = options || {};
@@ -36,11 +38,11 @@ function pintarVacio(msg) {
 function cargar() {
   document.getElementById('btnRefresh').disabled = true;
 
-  authFetch('/api/summary?role=rrhh')
+  authFetch(`${API_BASE}/api/memos/summary?role=rrhh`)
     .then(function (r) {
       if (r.status === 401) {
         var here = encodeURIComponent(location.href);
-        location.href = '/auth/key.html?role=rrhh&next=' + here;
+        location.href = '/apps/memos/auth/key.html?role=rrhh&next=' + here;
         return Promise.reject('401');
       }
       return r.json();
@@ -62,7 +64,7 @@ function cargar() {
           + '<td>' + (m.equipo || '-') + '</td>'
           + '<td>' + fmtFecha(m.created_at) + '</td>'
           + '<td class="row-actions">'
-          +   '<a class="btn btn-primary" href="/rrhh/review.html?id=' + encodeURIComponent(m.id) + '" target="_blank">Revisar</a>'
+          +   '<a class="btn btn-primary" href="/apps/memos/rrhh/review.html?id=' + encodeURIComponent(m.id) + '" target="_blank">Revisar</a>'
           + '</td>'
           + '</tr>';
       }).join('');

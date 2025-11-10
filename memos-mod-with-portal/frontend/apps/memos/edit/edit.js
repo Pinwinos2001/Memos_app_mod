@@ -1,5 +1,7 @@
+const API_BASE = window.APP_CONFIG?.API_BASE_URL || "";
+
 async function cargarIncisos(){
-  const r = await fetch('/incisos_json');
+  const r = await fetch(`${API_BASE}/api/public/incisos_json`);
   const data = await r.json();
   const sel = document.getElementById('inciso_select');
   const current = sel.dataset.current || '';
@@ -34,7 +36,7 @@ const dniInput = form.querySelector('input[name="dni"]');
 
 async function loadMemo(){
   if(!id){ alert('Falta id'); return; }
-  const r = await fetch('/api/memo/'+encodeURIComponent(id));
+  const r = await fetch(`${API_BASE}/api/memos/`+encodeURIComponent(id));
   if(!r.ok){ alert('No encontrado'); return; }
   const d = await r.json();
   for(const k of ['solicitante_email','area_sol','dni','nombre','area','cargo','jefe_email','hecho_que','hecho_cuando','hecho_donde']){
@@ -48,7 +50,7 @@ async function checkDNI(){
   const v = (dniInput.value||'').trim();
   if(/^\d{8}$/.test(v)){
     try{
-      const r = await fetch('/lookup_json?dni='+v);
+      const r = await fetch(`${API_BASE}/public/lookup_json?dni=`+v);
       const d = await r.json();
       info.textContent = `Historial: ${d.previos} previo(s) – Orden #${d.orden} (${d.tipo})`;
     }catch{ info.textContent=''; }
@@ -60,7 +62,7 @@ dniInput.addEventListener('blur', checkDNI);
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const fd = new FormData(form);
-  const r = await fetch('/update/'+encodeURIComponent(id), { method:'POST', body: fd });
+  const r = await fetch(`${API_BASE}/api/memos/update/`+encodeURIComponent(id), { method:'POST', body: fd });
   const d = await r.json();
   if(d && d.ok && d.review_url){
     location.href = d.review_url;

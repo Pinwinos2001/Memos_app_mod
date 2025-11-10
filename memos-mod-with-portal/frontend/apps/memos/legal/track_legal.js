@@ -3,13 +3,16 @@
   var token = sessionStorage.getItem('memo_token_'+role);
   if(!token){
     var here = encodeURIComponent(location.href);
-    location.href = '/auth/key.html?role='+role+'&next='+here;
+    location.href = '/apps/memos/auth/key.html?role='+role+'&next='+here;
   } else { window.__AUTH_TOKEN__ = token; }
 })();
+
+const API_BASE = window.APP_CONFIG?.API_BASE_URL || "";
 
 function authFetch(url, options){
   options = options || {};
   options.headers = options.headers || {};
+  console.log('Using auth token:', window.__AUTH_TOKEN__);
   options.headers['Authorization'] = 'Bearer ' + (window.__AUTH_TOKEN__||'');
   return fetch(url, options);
 }
@@ -27,7 +30,7 @@ function fmtFecha(s){
 
 function cargar(){
   document.getElementById('btnRefresh').disabled = true;
-  authFetch('/api/summary?role=legal')
+  authFetch(`${API_BASE}/api/memos/summary?role=legal`)
     .then(function(r){ return r.json(); })
     .then(function(data){
       var counts = data.counts || {};
@@ -47,7 +50,7 @@ function cargar(){
           + '<td>'+(m.nombre||'')+'</td>'
           + '<td>'+(m.equipo||'-')+'</td>'
           + '<td>'+fmtFecha(m.created_at)+'</td>'
-          + '<td class="row-actions"><a class="btn btn-primary" href="/legal/review.html?id='+encodeURIComponent(m.id)+'" target="_blank">Revisar</a></td>'
+          + '<td class="row-actions"><a class="btn btn-primary" href="./review.html?id='+encodeURIComponent(m.id)+'" target="_blank">Revisar</a></td>'
           + '</tr>';
       }).join('');
     })

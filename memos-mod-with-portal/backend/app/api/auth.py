@@ -63,7 +63,6 @@ def key_login(body: LoginBody):
 
     token = make_token(role)
 
-    # 👉 Nada de redirects: el frontend decide qué hacer con el token
     return {
         "ok": True,
         "token": token,

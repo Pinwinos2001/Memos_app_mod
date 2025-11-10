@@ -4,11 +4,13 @@
   const token = sessionStorage.getItem('memo_token_'+role);
   if(!token){
     const here = encodeURIComponent(location.href);
-    location.href = `/auth/key.html?role=${role}&next=${here}`;
+    location.href = `apps/memos/auth/key.html?role=${role}&next=${here}`;
   } else {
     window.__AUTH_TOKEN__ = token;
   }
 })();
+
+const API_BASE = window.APP_CONFIG?.API_BASE_URL || "";
 
 async function authFetch(url, options){
   options = options || {};
@@ -35,7 +37,7 @@ $all('.tab').forEach(btn=>{
 
 async function cargarMetricas(){
   try{
-    const r = await authFetch('/api/metrics');
+    const r = await authFetch(`${API_BASE}/api/memos/metrics`);
     metricsData = await r.json();
     const mb = metricsData.metricas_basicas || {};
     $('#total-memos').textContent = mb.total_memos ?? 0;
@@ -106,7 +108,7 @@ async function cargarMemos(){
   const tbody = document.getElementById('memos-table');
   tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#64748b; padding:28px">Cargando memos…</td></tr>`;
   try{
-    const r = await authFetch(`/api/memos?buscar=${q}&estado=${e}`);
+    const r = await authFetch(`${API_BASE}/api/memos/listar?buscar=${q}&estado=${e}`);
     const data = await r.json();
     memosData = data.memos||[];
     if(memosData.length===0){

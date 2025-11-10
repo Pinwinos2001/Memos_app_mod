@@ -16,7 +16,7 @@ from ..services.memo import (
 )
 from ..services.documents import generate_doc_from_template, try_export_pdf
 from ..services.mail import send_mail, get_legal_email, get_rrhh_emails
-from ..core.config import OUT_DIR, BASE_URL
+from ..core.config import OUT_DIR, BASE_URL, BACK_URL
 
 router = APIRouter()
 
@@ -111,6 +111,9 @@ async def submit(
     pdf_path = try_export_pdf(docx_path) if docx_path.suffix == ".docx" else None
     pdf_str = str(pdf_path) if pdf_path else ""
 
+    rel_pdf = str(pdf_path.relative_to(OUT_DIR)) if pdf_path else ""
+    rel_docx = str(docx_path.relative_to(OUT_DIR)) if docx_path else ""
+
     db_exec(
         """
         INSERT INTO memos(
@@ -141,8 +144,8 @@ async def submit(
             fecha_limite,
             "En revisión Legal",
             "",
-            str(docx_path),
-            pdf_str,
+            str(rel_docx),
+            str(rel_pdf),
             str(evid_dir if evid_paths else ""),
         ),
     )
@@ -184,7 +187,6 @@ async def submit(
         )
 
     created_str = datetime.now().strftime("%d/%m/%Y %H:%M")
-    pdf_or_docx_url = f"{BASE_URL}/file?path={pdf_str}" if pdf_str else f"{BASE_URL}/file?path={docx_path}"
 
     # 👉 Sin forzar redirects de frontend. El HTML decide qué hacer.
     return {
@@ -194,7 +196,7 @@ async def submit(
         "corr_id": corr_id,
         "created_at": created_str,
         "status": "Legal para revisión",
-        "pdf_url": pdf_or_docx_url,
+        "pdf_url": f"{BACK_URL}/api/files/memo_file/{uid}",
     }
 
 
@@ -384,87 +386,10 @@ async def update_memo(
     return {"ok": True, "id": id, "memo_id": memo_id}
 
 
-@router.get("/{id}")
-def api_get_memo(id: str, Authorization: str | None = Header(None)):
-    # legal/rrhh/dash
-    require_auth(Authorization, ["legal", "rrhh", "dash"])
-    row = db_one(
-        """
-        SELECT id, memo_id, corr_id, created_at, solicitante_email, area_sol, dni, nombre, area, cargo, equipo,
-               jefe_email, inciso_num, inciso_texto, hecho_que, hecho_cuando, hecho_donde, tipo, fecha_limite,
-               estado, legal_aprobado, legal_comentario, docx_path, pdf_path
-        FROM memos WHERE id=?
-        """,
-        (id,),
-    )
-    if not row:
-        raise HTTPException(status_code=404, detail="Memo no encontrado")
-
-    keys = [
-        "id","memo_id","corr_id","created_at","solicitante_email","area_sol","dni","nombre","area","cargo","equipo",
-        "jefe_email","inciso_num","inciso_texto","hecho_que","hecho_cuando","hecho_donde","tipo","fecha_limite",
-        "estado","legal_aprobado","legal_comentario","docx_path","pdf_path"
-    ]
-    return {k: v for k, v in zip(keys, row)}
 
 
-@router.get("")
-def api_memos(
-    buscar: str = "",
-    estado: str = "",
-    limit: int = 50,
-    Authorization: str | None = Header(None),
-):
-    require_auth(Authorization, ["dash", "rrhh", "legal"])
 
-    from ..core.config import DB_PATH
-    import sqlite3
 
-    con = sqlite3.connect(str(DB_PATH))
-    cur = con.cursor()
-
-    where = []
-    params = []
-    if buscar:
-        where.append("(dni LIKE ? OR nombre LIKE ? OR memo_id LIKE ?)")
-        s = f"%{buscar}%"
-        params.extend([s, s, s])
-    if estado:
-        where.append("estado = ?")
-        params.append(estado)
-
-    where_clause = ("WHERE " + " AND ".join(where)) if where else ""
-    cur.execute(
-        f"""
-        SELECT memo_id, dni, nombre, area, cargo, equipo, tipo, estado,
-               legal_aprobado, created_at, fecha_limite, id
-        FROM memos {where_clause}
-        ORDER BY created_at DESC
-        LIMIT ?
-        """,
-        (*params, limit),
-    )
-    rows = cur.fetchall()
-    con.close()
-
-    memos = [
-        {
-            "memo_id": r[0],
-            "dni": r[1],
-            "nombre": r[2],
-            "area": r[3],
-            "cargo": r[4],
-            "equipo": r[5],
-            "tipo": r[6],
-            "estado": r[7],
-            "legal_aprobado": r[8],
-            "created_at": r[9],
-            "fecha_limite": r[10],
-            "id": r[11],
-        }
-        for r in rows
-    ]
-    return {"memos": memos, "total": len(memos)}
 
 
 @router.get("/metrics")
@@ -651,3 +576,86 @@ def api_summary(role: str, Authorization: str = Header(None)):
         "approved_list": pack(approved_rows),
         "not_approved_list": pack(rejected_rows),
     }
+
+
+@router.get("/listar")
+def api_memos(
+    buscar: str = "",
+    estado: str = "",
+    limit: int = 50,
+    Authorization: str | None = Header(None),
+):
+    require_auth(Authorization, ["dash", "rrhh", "legal"])
+
+    from ..core.config import DB_PATH
+    import sqlite3
+
+    con = sqlite3.connect(str(DB_PATH))
+    cur = con.cursor()
+
+    where = []
+    params = []
+    if buscar:
+        where.append("(dni LIKE ? OR nombre LIKE ? OR memo_id LIKE ?)")
+        s = f"%{buscar}%"
+        params.extend([s, s, s])
+    if estado:
+        where.append("estado = ?")
+        params.append(estado)
+
+    where_clause = ("WHERE " + " AND ".join(where)) if where else ""
+    cur.execute(
+        f"""
+        SELECT memo_id, dni, nombre, area, cargo, equipo, tipo, estado,
+               legal_aprobado, created_at, fecha_limite, id
+        FROM memos {where_clause}
+        ORDER BY created_at DESC
+        LIMIT ?
+        """,
+        (*params, limit),
+    )
+    rows = cur.fetchall()
+    con.close()
+
+    memos = [
+        {
+            "memo_id": r[0],
+            "dni": r[1],
+            "nombre": r[2],
+            "area": r[3],
+            "cargo": r[4],
+            "equipo": r[5],
+            "tipo": r[6],
+            "estado": r[7],
+            "legal_aprobado": r[8],
+            "created_at": r[9],
+            "fecha_limite": r[10],
+            "id": r[11],
+        }
+        for r in rows
+    ]
+    return {"memos": memos, "total": len(memos)}
+
+
+@router.get("/{id}")
+def api_get_memo(id: str, Authorization: str | None = Header(None)):
+    # legal/rrhh/dash
+    require_auth(Authorization, ["legal", "rrhh", "dash"])
+    row = db_one(
+        """
+        SELECT id, memo_id, corr_id, created_at, solicitante_email, area_sol, dni, nombre, area, cargo, equipo,
+               jefe_email, inciso_num, inciso_texto, hecho_que, hecho_cuando, hecho_donde, tipo, fecha_limite,
+               estado, legal_aprobado, legal_comentario, docx_path, pdf_path
+        FROM memos WHERE id=?
+        """,
+        (id,),
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Memo no encontrado")
+
+    keys = [
+        "id","memo_id","corr_id","created_at","solicitante_email","area_sol","dni","nombre","area","cargo","equipo",
+        "jefe_email","inciso_num","inciso_texto","hecho_que","hecho_cuando","hecho_donde","tipo","fecha_limite",
+        "estado","legal_aprobado","legal_comentario","docx_path","pdf_path"
+    ]
+    return {k: v for k, v in zip(keys, row)}

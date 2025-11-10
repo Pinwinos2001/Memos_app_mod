@@ -2,11 +2,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Heineken Memos – Portal</title>
+<link rel="icon" type="image/png" href="/assets/hnkstar.png">
 <link rel="stylesheet" href="./portal.css">
 <body>
 <header>
   <div class="brand">
-    <img src="/static/logo_heineken.jpg" alt="Heineken">
+    <img src="/assets/logo_heineken.jpg" alt="Heineken">
     <div>
       <h1>Heineken Memos</h1>
       <small>Portal de Gestión de Memorándums</small>
@@ -32,17 +33,17 @@
 
   <h3 class="section-title">Acceso Restringido</h3>
   <div class="grid">
-    <div class="card btn purple" onclick="location.href='/apps/memos/auth/key.html?role=dash&next=/dashboard/index.html'">
+    <div class="card btn purple" onclick="location.href='/apps/memos/auth/key.html?role=dash&next=/apps/memos/dashboard/index.html'">
       <div class="icon">🔒</div>
       <div><h3>Dashboard</h3><p>Estadísticas y reportes</p></div>
     </div>
     <!-- Legal -->
-    <div class="card btn orange" onclick="location.href='/apps/memos/auth/key.html?role=legal&next=/legal/track.html'">
+    <div class="card btn orange" onclick="location.href='/apps/memos/auth/key.html?role=legal&next=/apps/memos/legal/track.html'">
       <div class="icon">🔒</div>
       <div><h3>Legal</h3><p>Revisión y seguimiento</p></div>
     </div>
 
-    <div class="card btn red" onclick="location.href='/apps/memos/auth/key.html?role=rrhh&next=/rrhh/track.html'">
+    <div class="card btn red" onclick="location.href='/apps/memos/auth/key.html?role=rrhh&next=/apps/memos/rrhh/track.html'">
       <div class="icon">🔒</div>
       <div><h3>RRHH</h3><p>Revisión y seguimiento</p></div>
     </div>
