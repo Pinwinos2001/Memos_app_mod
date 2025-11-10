@@ -85,7 +85,7 @@ async function downloadPDF(memoId, memoCode = "documento") {
 
 function goPortal(nextUrlFromServer) {
   try { if (window.opener) window.opener.postMessage({ t: 'memos:refresh' }, '*'); } catch (e) {}
-  const next = nextUrlFromServer || '/apps/memos/portal/';
+  const next = '/apps/memos/portal/';
   location.replace(next);
 }
 

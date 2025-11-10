@@ -8,46 +8,69 @@ from ..services.db import db_one
 FERIADOS: Set[str] = set()  # If you want, populate 'YYYY-MM-DD' dates
 
 INCISOS_VENTAS: List[Dict[str, Any]] = [
-    {"id":1, "titulo":"Honestidad y buena fe", "ejemplos":[
-        "Registró visitas en clientes inexistentes.",
-        "Reportó ventas/pedidos que nunca ocurrieron.",
-        "Colocó o declaró punto de venta en su domicilio."
-    ]},
-    {"id":2, "titulo":"Obedecer órdenes e instrucciones", "ejemplos":[
-        "No siguió la ruta asignada.",
-        "Ignoró cobertura mínima indicada por su jefe.",
-        "No entregó material promocional pese a la orden."
-    ]},
-    {"id":3, "titulo":"Desempeño con responsabilidad", "ejemplos":[
-        "Reutilizó fotos de exhibición para varios clientes.",
-        "No cumplió la cuota mínima de visitas diarias.",
-        "Envío de reportes incompletos de la ruta."
-    ]},
-    {"id":5, "titulo":"Cuidado de bienes de la empresa", "ejemplos":[
-        "Uso no autorizado del celular/línea corporativa.",
-        "Pérdida o mal uso de materiales de trade.",
-        "Prestar herramientas a terceros sin permiso."
-    ]},
-    {"id":9, "titulo":"Asistencia y registro", "ejemplos":[
-        "Llegó tarde a la matinal de inicio de ruta.",
-        "No marcó asistencia al inicio de la jornada.",
-        "Pidió a otro registrar su ingreso/salida."
-    ]},
-    {"id":10, "titulo":"Conducta en los negocios", "ejemplos":[
-        "Cliente reporta pedido que nunca hizo.",
-        "Cobro indebido o beneficio personal con cliente.",
-        "Negociación fuera de políticas comerciales."
-    ]},
-    {"id":12, "titulo":"Respeto y consideración", "ejemplos":[
-        "Trato irrespetuoso a bodeguero/cliente.",
-        "Comentarios despectivos en punto de venta.",
-        "Discusión agresiva con compañero de ruta."
-    ]},
-    {"id":18, "titulo":"Puntualidad", "ejemplos":[
-        "Retraso frecuente en el inicio de ruta.",
-        "Tardanza a reuniones matinales.",
-        "Ausencia parcial sin aviso durante la jornada."
-    ]},
+    
+    {"id": 1,
+        "titulo": "Honestidad y buena fe",
+        "ejemplos": [
+            "Registró visitas en clientes inexistentes.",
+            "Reportó ventas/pedidos que nunca ocurrieron.",
+            "Colocó o declaró punto de venta en su domicilio."
+        ]
+    },
+    {
+        "id": 2,
+        "titulo": "Obedecer órdenes e instrucciones",
+        "ejemplos": [
+            "No siguió la ruta asignada.",
+            "No cumplió los Indicadores de Disciplina Operativa (IDO).",
+            "No entregó material promocional pese a la orden."
+        ]
+    },
+    {
+        "id": 3,
+        "titulo": "Desempeño con responsabilidad",
+        "ejemplos": [
+            "Reutilizó fotos de exhibición para varios clientes.",
+            "Realizó un compromiso con el cliente sin autorización del jefe.",
+            "Envío de reportes incompletos de la ruta."
+        ]
+    },
+    {
+        "id": 5,
+        "titulo": "Cuidado de bienes de la empresa",
+        "ejemplos": [
+            "Uso no autorizado del celular/línea corporativa.",
+            "Pérdida o mal uso de materiales de trade.",
+            "Prestar herramientas a terceros sin permiso."
+        ]
+    },
+    {
+        "id": 10,
+        "titulo": "Conducta en los negocios",
+        "ejemplos": [
+            "Cliente reporta pedido que nunca hizo.",
+            "Cobro indebido o beneficio personal con cliente.",
+            "Negociación fuera de políticas comerciales."
+        ]
+    },
+    {
+        "id": 12,
+        "titulo": "Respeto y consideración",
+        "ejemplos": [
+            "Trato irrespetuoso a bodeguero/cliente.",
+            "Comentarios despectivos en punto de venta.",
+            "Discusión agresiva con compañero de ruta."
+        ]
+    },
+    {
+        "id": 18,
+        "titulo": "Puntualidad",
+        "ejemplos": [
+            "Retraso frecuente en el inicio de ruta.",
+            "Llegó fuera de los minutos de tolerancia (15 minutos) a la matinal.",
+            "Ausencia parcial sin aviso durante la jornada."
+        ]
+    }
 ]
 
 INCISO_TEXTO = {

@@ -75,7 +75,7 @@ def legal_approve(
             cc_list = get_rrhh_emails()
             send_mail([solicitante_email], f"[Observado Legal] {memo_id}", html_obs, attachments=None, cc=cc_list)
 
-        return {"ok": True, "status": "Observado por Legal", "memo_id": memo_id, "next_url": "/portal/index.html"}
+        return {"ok": True, "status": "Observado por Legal", "memo_id": memo_id, "next_url": "/apps/memos/portal/"}
 
     else:
         raise HTTPException(400, "Decisión inválida. Use APROBAR u OBSERVAR.")
@@ -142,7 +142,7 @@ def approve(
             cc_list = get_rrhh_emails()
             send_mail([solicitante_email], f"[Observado RRHH] {memo_id}", html_obs, attachments=None, cc=cc_list)
 
-        return {"ok": True, "status": "Observado por RRHH", "memo_id": memo_id, "next_url": "apps/memos/portal/"}
+        return {"ok": True, "status": "Observado por RRHH", "memo_id": memo_id, "next_url": "/apps/memos/portal/"}
 
     else:
         raise HTTPException(400, "Decisión inválida. Use APROBAR u OBSERVAR.")
