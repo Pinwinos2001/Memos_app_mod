@@ -36,32 +36,72 @@ if (form && id) {
 async function load() {
   if (!id) {
     memoDiv.textContent = "Falta id";
+    if (form) form.style.display = "none";
     return;
   }
 
   const r = await authFetch(`${API_BASE}/api/memos/${encodeURIComponent(id)}`);
   if (!r.ok) {
     memoDiv.textContent = "No encontrado";
+    if (form) form.style.display = "none";
     return;
   }
 
   const d = await r.json();
 
+  const estado = d.estado || "-";
+  const legalAprobado = (d.legal_aprobado || "").trim().toUpperCase();
+
+  // Info principal
   memoDiv.innerHTML = `
-    <p><b>${d.nombre || "-"}</b> (DNI ${d.dni || "-"}) — ${d.area || ""} / ${d.cargo || ""}</p>
+    <p><b>${d.nombre || "-"}</b> (DNI ${d.dni || "-"}) — ${d.area || ""} / ${
+    d.cargo || ""
+  }</p>
     <p><b>Tipo:</b> ${d.tipo || "-"}<br>
        <b>Inciso:</b> ${d.inciso_num || "-"} — ${d.inciso_texto || ""}</p>
     <p><b>Hechos:</b> ${d.hecho_que || "-"}<br>
-       <b>Cuándo:</b> ${d.hecho_cuando || "-"} &nbsp;|&nbsp; <b>Dónde:</b> ${d.hecho_donde || "-"}</p>
+       <b>Cuándo:</b> ${d.hecho_cuando || "-"} &nbsp;|&nbsp; <b>Dónde:</b> ${
+    d.hecho_donde || "-"
+  }</p>
+    <p><b>Estado actual:</b> ${estado}</p>
   `;
 
-  // Solo muestra el botón si existe el PDF en BD
+  // Botón de descarga PDF (siempre que exista archivo en backend)
   downloads.innerHTML = `
     <button id="btnDownloadPDF" class="btn btn-outline">Descargar PDF</button>
+    <button id="btnBack" class="btn btn-muted">Volver al inicio</button>
   `;
   document
     .getElementById("btnDownloadPDF")
     .addEventListener("click", () => downloadPDF(id, d.memo_id));
+
+  document.getElementById("btnBack").addEventListener("click", () => goPortal());
+
+  // ---- CONTROL DE DOBLE APROBACIÓN ----
+  // Solo se permite aprobar/observar si:
+  // - Estado es exactamente "En revisión Legal"
+  // - Y Legal aún no marcó APROBADO/OBSERVADO
+  const canReview =
+    estado === "En revisión Legal";
+
+  if (!canReview) {
+    // Deshabilitar el formulario de decisiones
+    if (form) {
+      form.style.display = "none";
+    }
+
+    // Mensaje informativo para que el usuario sepa por qué
+    const msg = document.createElement("div");
+    msg.className = "alert-info";
+    msg.style.marginTop = "16px";
+    msg.style.padding = "10px 12px";
+    msg.style.borderRadius = "6px";
+    msg.style.background = "#f1f5f9";
+    msg.style.color = "#0f172a";
+    msg.textContent = `Este memo ya fue procesado por Legal. Estado actual: ${estado}. No es posible registrar otra decisión.`;
+
+    memoDiv.appendChild(msg);
+  }
 }
 
 // Redirección uniforme al Portal (y notificación al listado si está abierto)
@@ -124,11 +164,16 @@ if (form) {
     }
 
     try {
-      const r = await authFetch(`${API_BASE}/api/review/legal_approve`, { method: 'POST', body: fd });
+      const r = await authFetch(
+        `${API_BASE}/api/review/legal_approve`,
+        { method: "POST", body: fd }
+      );
       const d = await r.json().catch(() => ({}));
       if (r.ok && d && d.ok) {
         goPortal(d.next_url);
       } else {
+        // si backend dice que ya no se puede, también mandamos al portal
+        alert(d?.detail || "No fue posible registrar la decisión.");
         goPortal(d && d.next_url);
       }
     } catch (err) {

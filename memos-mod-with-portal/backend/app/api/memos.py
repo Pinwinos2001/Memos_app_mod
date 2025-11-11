@@ -15,7 +15,7 @@ from ..services.memo import (
     INCISO_TEXTO, tipo_por_historial
 )
 from ..services.documents import generate_doc_from_template, try_export_pdf
-from ..services.mail import send_mail, get_legal_email, get_rrhh_emails
+from ..services.mail import send_mail, get_legal_emails, get_rrhh_emails
 from ..core.config import OUT_DIR, BASE_URL, BACK_URL
 
 router = APIRouter()
@@ -161,12 +161,12 @@ async def submit(
     <p>Revisar y aprobar: <a href="{legal_review_link}">{legal_review_link}</a></p>
     """
     atts = [docx_path] + ([pdf_path] if pdf_path else [])
-    legal_email = get_legal_email()
-    if legal_email:
+    legal_emails = get_legal_emails()
+    if legal_emails:
         cc_list = [jefe_email] if jefe_email else []
         cc_list.extend(get_rrhh_emails())
         send_mail(
-            [legal_email],
+            legal_emails,
             f"[Revisión Legal] {memo_id} - {nombre}",
             html_mail,
             attachments=atts,
@@ -188,7 +188,6 @@ async def submit(
 
     created_str = datetime.now().strftime("%d/%m/%Y %H:%M")
 
-    # 👉 Sin forzar redirects de frontend. El HTML decide qué hacer.
     return {
         "ok": True,
         "id": uid,
@@ -348,7 +347,7 @@ async def update_memo(
     )
 
     # Avisos
-    legal_review_link = f"{BASE_URL}/legal/review.html?id={id}"
+    legal_review_link = f"{BASE_URL}/apps/memos/legal/review.html?id={id}"
     html = f"""
     <p>Memo <b>{memo_id}</b> ha sido actualizado y requiere nueva revisión.</p>
     <p>Trabajador: <b>{nombre}</b> (DNI {dni}) - {area} / {cargo}</p>
@@ -359,12 +358,12 @@ async def update_memo(
     <p><small>Este memo ha sido editado {new_edit_count} vez(es).</small></p>
     """
     atts = [docx_path] + ([pdf_path] if pdf_path else [])
-    legal_email = get_legal_email()
-    if legal_email:
+    legal_emails = get_legal_emails()
+    if legal_emails:
         cc_list = [jefe_email] if jefe_email else []
         cc_list.extend(get_rrhh_emails())
         send_mail(
-            [legal_email],
+            legal_emails,
             f"[Memo actualizado] {memo_id} - {nombre}",
             html,
             attachments=atts,
@@ -384,12 +383,6 @@ async def update_memo(
         )
 
     return {"ok": True, "id": id, "memo_id": memo_id}
-
-
-
-
-
-
 
 
 @router.get("/metrics")

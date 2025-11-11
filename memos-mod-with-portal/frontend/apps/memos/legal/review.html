@@ -1,27 +1,70 @@
 <!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Revisión Legal</title>
-<link rel="stylesheet" href="./review.css">
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Revisión Legal</title>
+  <link rel="icon" type="image/png" href="/assets/hnkstar.png">
+  <link rel="stylesheet" href="./review.css">
+</head>
 <body>
-<div class="card">
-  <div class="brand">
-    <img src="/static/logo_heineken.jpg" alt="Heineken">
-    <h1>Revisión Legal</h1>
-  </div>
-  <div id="memo"></div>
-  <div id="downloads" class="downloads"></div>
-  <form id="legalForm">
-    <input type="hidden" name="id">
-    <div class="actions">
-      <button class="btn btn-primary" name="decision" value="APROBAR" type="submit">Aprobar Legal</button>
-      <button class="btn btn-danger"  name="decision" value="OBSERVAR" type="submit">Observar</button>
-      <span class="btn btn-muted" style="pointer-events:none">Comentario (si observa):</span>
+  <div class="page">
+    <div class="card">
+      <header class="brand">
+        <div class="brand-logo">
+          <img src="/assets/logo_heineken.png" alt="Heineken">
+        </div>
+        <div class="brand-text">
+          <h1>Revisión Legal</h1>
+          <p class="brand-subtitle">Validación de memo y registro de decisión</p>
+        </div>
+      </header>
+
+      <section id="memo" class="memo-data">
+        <!-- Se completa por JS -->
+      </section>
+
+      <div id="downloads" class="downloads">
+        <!-- Botones descargar PDF / volver se inyectan por JS -->
+      </div>
+
+      <form id="legalForm" class="legal-form">
+        <input type="hidden" name="id">
+
+        <div class="form-title-row">
+          <h2>Decisión de Legal</h2>
+          <p class="helper-text">
+            Selecciona una opción y, si observas, indica el motivo para que RR.HH. pueda gestionarlo.
+          </p>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" name="decision" value="APROBAR" type="submit">
+            Aprobar Legal
+          </button>
+          <button class="btn btn-danger" name="decision" value="OBSERVAR" type="submit">
+            Observar
+          </button>
+        </div>
+
+        <div class="comment-wrapper">
+          <label for="comentario">
+            Comentario <span class="label-optional">(obligatorio si se requiere mayor claridad)</span>
+          </label>
+          <textarea
+            id="comentario"
+            name="comentario"
+            placeholder="Describe claramente la observación, fundamentos legales o aclaraciones necesarias."
+          ></textarea>
+          <p class="comment-hint">
+            Este comentario será visible para RR.HH. y quedará registrado junto con tu decisión.
+          </p>
+        </div>
+      </form>
     </div>
-    <label for="comentario">Comentario</label>
-    <textarea id="comentario" name="comentario" placeholder="Describe claramente la observación"></textarea>
-  </form>
-</div>
-<script src="/config.js"></script>
-<script src="./review.js"></script>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="./review.js"></script>
 </body>
+</html>

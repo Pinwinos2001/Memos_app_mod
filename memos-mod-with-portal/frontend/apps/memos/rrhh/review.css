@@ -1,17 +1,290 @@
-:root{ --hnk-green:#13670B; --hnk-green-corp:#205527; --hnk-red:#ff2b00; --hnk-silver:#c3c3c3; --ink:#111; --bg:#f6f9f6; }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-a{color:var(--hnk-green)}
+:root{
+  --hnk-green:#13670B;
+  --hnk-green-corp:#205527;
+  --hnk-red:#ff2b00;
+  --hnk-silver:#c3c3c3;
+  --ink:#111;
+  --bg:#f6f9f6;
+}
 
-.card{width:min(980px,92vw);margin:20px auto;background:#fff;border:1.5px solid #e5e7eb;border-radius:18px;box-shadow:0 10px 30px rgba(32,85,39,.12);padding:28px 24px 22px}
-.brand{ display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:10px; }
-.brand img{ height:38px; padding:4px 8px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(19,103,11,.08) }
-h1{ margin:0; font-weight:800; letter-spacing:.4px; font-size:1.55rem; color:var(--hnk-green); }
-.actions{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 6px }
-.btn{ appearance:none; border:0; cursor:pointer; padding:12px 16px; border-radius:12px; font-weight:800; letter-spacing:.3px; font-size:15px; box-shadow:0 8px 16px rgba(32,85,39,.14); text-decoration:none }
-.btn-primary{ background:var(--hnk-green); color:#fff }
-.btn-danger{ background:#b91c1c; color:#fff }
-.btn-muted{ background:#f3f4f6; color:#111; box-shadow:none }
-textarea{ width:100%; min-height:120px; border:1.5px solid #d1d5db; border-radius:12px; padding:.75rem .9rem; font-size:15px }
-.downloads a{ display:inline-block; margin-right:10px }
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+
+html,body{
+  height:100%;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+
+a{
+  color:var(--hnk-green);
+}
+
+/* Contenedor principal (por si usas .page del HTML sugerido) */
+.page{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:40px 16px;
+}
+
+/* Card principal */
+.card{
+  width:min(980px,96vw);
+  margin:0 auto;
+  background:#fff;
+  border:1.5px solid #e5e7eb;
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(32,85,39,.12);
+  padding:32px 28px 24px;
+}
+
+/* Encabezado / marca */
+.brand{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  justify-content:flex-start;
+  margin-bottom:18px;
+}
+
+.brand img{
+  height:38px;
+  padding:4px 8px;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(19,103,11,.08);
+}
+
+.brand h1{
+  margin:0;
+  font-weight:800;
+  letter-spacing:.4px;
+  font-size:1.55rem;
+  color:var(--hnk-green);
+}
+
+.brand-subtitle{
+  margin:2px 0 0;
+  font-size:.8rem;
+  color:#6b7280;
+}
+
+/* Datos del memo */
+.memo-data{
+  font-size:.9rem;
+  color:#111827;
+  line-height:1.55;
+  padding:14px 14px 12px;
+  border-radius:14px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  margin-bottom:18px;
+}
+
+.memo-data p{
+  margin:4px 0;
+}
+
+.memo-data b{
+  font-weight:600;
+}
+
+/* Mensaje si ya fue procesado */
+.alert-info{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:8px;
+  background:#f3f4ff;
+  color:#111827;
+  font-size:.8rem;
+}
+
+/* Zona descargas / navegación */
+.downloads{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:18px;
+}
+
+/* Formulario decisión */
+.legal-form{
+  border-top:1px solid #e5e7eb;
+  padding-top:18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.form-title-row h2{
+  margin:0 0 2px;
+  font-size:1rem;
+  font-weight:600;
+  color:#111827;
+}
+
+.helper-text{
+  margin:0;
+  font-size:.8rem;
+  color:#6b7280;
+}
+
+/* Botones */
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:8px 0 4px;
+}
+
+.btn{
+  appearance:none;
+  border:0;
+  cursor:pointer;
+  padding:10px 18px;
+  border-radius:999px;
+  font-weight:700;
+  letter-spacing:.3px;
+  font-size:.9rem;
+  box-shadow:0 8px 16px rgba(32,85,39,.14);
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all .16s ease-in-out;
+  white-space:nowrap;
+  background:#f3f4f6;
+  color:#111827;
+}
+
+.btn-primary{
+  background:var(--hnk-green);
+  color:#fff;
+}
+
+.btn-primary:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(19,103,11,.22);
+}
+
+.btn-danger{
+  background:#b91c1c;
+  color:#fff;
+}
+
+.btn-danger:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(185,28,28,.22);
+}
+
+.btn-outline{
+  background:#fff;
+  color:#111827;
+  border:1px solid #d1d5db;
+  box-shadow:none;
+}
+
+.btn-outline:hover{
+  background:#f9fafb;
+}
+
+.btn-muted{
+  background:#f3f4f6;
+  color:#4b5563;
+  border:1px solid #e5e7eb;
+  box-shadow:none;
+}
+
+.btn-muted:hover{
+  background:#e5e7eb;
+}
+
+/* Comentario */
+.comment-wrapper{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.comment-wrapper label{
+  font-size:.82rem;
+  font-weight:500;
+  color:#374151;
+}
+
+.label-optional{
+  font-weight:400;
+  color:#9ca3af;
+  font-size:.74rem;
+}
+
+textarea{
+  width:100%;
+  min-height:120px;
+  border:1.5px solid #d1d5db;
+  border-radius:12px;
+  padding:.75rem .9rem;
+  font-size:.9rem;
+  font-family:inherit;
+  resize:vertical;
+  outline:none;
+  transition:all .16s ease-in-out;
+  background:#fff;
+}
+
+textarea:focus{
+  border-color:var(--hnk-green);
+  box-shadow:0 0 0 2px rgba(19,103,11,.14);
+}
+
+.comment-hint{
+  margin:0;
+  font-size:.74rem;
+  color:#9ca3af;
+}
+
+/* Responsive */
+@media (max-width:600px){
+  .page{
+    padding:20px 10px;
+  }
+
+  .card{
+    padding:22px 16px 18px;
+    border-radius:14px;
+  }
+
+  .brand{
+    flex-direction:row;
+    align-items:flex-start;
+  }
+
+  .brand h1{
+    font-size:1.35rem;
+  }
+
+  .memo-data{
+    font-size:.82rem;
+    padding:10px 10px 8px;
+    margin-bottom:14px;
+  }
+
+  .downloads{
+    gap:8px;
+  }
+
+  .btn{
+    padding:9px 14px;
+    font-size:.82rem;
+  }
+}

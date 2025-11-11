@@ -7,9 +7,9 @@ from typing import List, Tuple
 router = APIRouter()
 
 AUTH_SECRET = os.getenv("AUTH_SECRET", "dev-secret-change-me")
-LEGAL_KEY = os.getenv("LEGAL_KEY", "legal123")
-RRHH_KEY  = os.getenv("RRHH_KEY", "rrhh123")
-DASH_KEY  = os.getenv("DASH_KEY", "dash123")
+LEGAL_KEY = os.getenv("LEGAL_KEY", "nokey")
+RRHH_KEY  = os.getenv("RRHH_KEY", "nokey")
+DASH_KEY  = os.getenv("DASH_KEY", "nokey")
 
 ROLE_TO_KEY = {"legal": LEGAL_KEY, "rrhh": RRHH_KEY, "dash": DASH_KEY}
 

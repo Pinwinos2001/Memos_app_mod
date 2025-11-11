@@ -2,8 +2,8 @@ from pathlib import Path
 from fastapi import APIRouter, Form, HTTPException, Header
 from ..api.auth import require_auth
 from ..services.db import db_exec, db_one
-from ..services.mail import send_mail, get_legal_email, get_rrhh_emails
-from ..core.config import BASE_URL
+from ..services.mail import send_mail, get_legal_emails, get_rrhh_emails
+from ..core.config import BASE_URL, OUT_DIR
 
 router = APIRouter()
 
@@ -26,7 +26,21 @@ def legal_approve(
     )
     if not row:
         raise HTTPException(404, "No existe el memo.")
-    memo_id, dni, nombre, solicitante_email, jefe_email, docx_path, pdf_path = row
+    
+    memo_id, dni, nombre, solicitante_email, jefe_email, docx_rel, pdf_rel = row
+
+    # Reconstruir rutas absolutas para adjuntos
+    attachments: list[Path] = []
+
+    if docx_rel:
+        p = (OUT_DIR / docx_rel).resolve()
+        if p.exists():
+            attachments.append(p)
+
+    if pdf_rel:
+        p = (OUT_DIR / pdf_rel).resolve()
+        if p.exists():
+            attachments.append(p)
 
     if d == "APROBAR":
         # graba decisión de legal y pasa a cola de RRHH
@@ -40,14 +54,10 @@ def legal_approve(
         <p>Trabajador: <b>{nombre}</b> (DNI {dni})</p>
         <p>Revisar y aprobar: <a href="{review_link}">{review_link}</a></p>
         """
-        atts = []
-        if docx_path: atts.append(Path(docx_path))
-        if pdf_path:  atts.append(Path(pdf_path))
         rrhh_emails = get_rrhh_emails()
         if rrhh_emails:
             cc_list = [jefe_email] if jefe_email else []
-            send_mail(rrhh_emails, f"[Aprobado Legal] {memo_id} - {nombre}", html_rrhh, attachments=atts, cc=cc_list)
-
+            send_mail(rrhh_emails, f"[Aprobado Legal] {memo_id} - {nombre}", html_rrhh, attachments=attachments, cc=cc_list)
         if solicitante_email:
             notif_html = f"""
             <p>Su solicitud de memo <b>{memo_id}</b> fue aprobada por Legal.</p>
@@ -56,7 +66,7 @@ def legal_approve(
             send_mail([solicitante_email], f"[Aprobado por Legal] {memo_id} - {nombre}", notif_html, attachments=None, cc=None)
 
         # next_url por si el front lo quiere usar
-        return {"ok": True, "status": "Pendiente revisión de RRHH", "memo_id": memo_id, "next_url": "/apps/memos/portal/index.html"}
+        return {"ok": True, "status": "Pendiente revisión de RRHH", "memo_id": memo_id, "next_url": "/apps/memos/portal/"}
 
     elif d == "OBSERVAR":
         db_exec(
@@ -99,7 +109,20 @@ def approve(
     )
     if not row:
         raise HTTPException(404, "No existe el memo.")
-    memo_id, dni, nombre, area, cargo, solicitante_email, jefe_email, docx_path, pdf_path, legal_aprobado = row
+    memo_id, dni, nombre, area, cargo, solicitante_email, jefe_email, docx_rel, pdf_rel, legal_aprobado = row
+
+    # Reconstruir rutas absolutas para adjuntos
+    attachments: list[Path] = []
+
+    if docx_rel:
+        p = (OUT_DIR / docx_rel).resolve()
+        if p.exists():
+            attachments.append(p)
+
+    if pdf_rel:
+        p = (OUT_DIR / pdf_rel).resolve()
+        if p.exists():
+            attachments.append(p)
 
     if (legal_aprobado or "").upper() != "APROBADO":
         raise HTTPException(403, "Este memo debe ser aprobado por Legal primero.")
@@ -114,20 +137,17 @@ def approve(
         <p>Por favor, hacer saber al colaborador y coordinar los descargos (3 días hábiles).</p>
         <p>Trabajador: <b>{nombre}</b> (DNI {dni}) - {area} / {cargo}</p>
         """
-        atts = []
-        if docx_path: atts.append(Path(docx_path))
-        if pdf_path:  atts.append(Path(pdf_path))
         to_list = [jefe_email] if jefe_email else []
         cc_list = [solicitante_email] if solicitante_email else []
         cc_list.extend(get_rrhh_emails())
-        legal_email = get_legal_email()
-        if legal_email:
-            cc_list.append(legal_email)
+        legal_emails = get_legal_emails()
+        if legal_emails:
+            cc_list.extend(legal_emails)
         if to_list:
-            send_mail(to_list, f"[Memo aprobado] {memo_id} - {nombre}", html, attachments=atts, cc=cc_list)
+            send_mail(to_list, f"[Memo aprobado] {memo_id} - {nombre}", html, attachments=attachments, cc=cc_list)
 
         db_exec("UPDATE memos SET estado='Emitido' WHERE id=?", (id,))
-        return {"ok": True, "status": "Emitido", "memo_id": memo_id, "next_url": "/portal/index.html"}
+        return {"ok": True, "status": "Emitido", "memo_id": memo_id, "next_url": "/apps/memos/portal/"}
 
     elif d == "OBSERVAR":
         db_exec("UPDATE memos SET estado='Observado RRHH' WHERE id=?", (id,))

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 import platform
 from datetime import datetime
-from ..core.config import RRHH_JEFE_EMAIL, RRHH_EQUIPO_EMAIL, LEGAL_JEFE_EMAIL, LEGAL_EQUIPO_EMAIL, LEGAL_EMAIL, RRHH_EMAIL, OUT_DIR
+from ..core.config import LEGAL_MAILS, OUT_DIR, RRHH_MAILS
 import base64
 import json
 import os
@@ -12,8 +12,8 @@ import requests
 from typing import Iterable, List, Optional, Union
 from ..core.config import DEBUG
 
-FLOW_URL = os.getenv("MAIL_FLOW_URL")  # Pon aquí la URL de tu flujo Power Automate en .env
-API_KEY = os.getenv("MAIL_API_KEY")    # Opcional, si tu flujo valida API Key
+FLOW_URL = os.getenv("MAIL_FLOW_URL", "")  # Pon aquí la URL de tu flujo Power Automate en .env
+API_KEY = os.getenv("MAIL_API_KEY", "")    # Opcional, si tu flujo valida API Key
 
 
 PathLike = Union[str, pathlib.Path]
@@ -120,33 +120,22 @@ def send_mail(
         # En producción: loguea; no revientes toda la API por fallo de correo
         print("[send_mail] EXCEPTION:", repr(e))
 
-def send_mail_preview(to, subject, html, attachments=None, cc=None):
-    prev_dir = OUT_DIR / "mails"
-    prev_dir.mkdir(parents=True, exist_ok=True)
-    f = prev_dir / f"preview_{datetime.now():%Y%m%d_%H%M%S}.html"
-    body = f"""
-    <p><b>TO</b>: {', '.join(to or [])}<br>
-    <b>CC</b>: {', '.join(cc or [])}</p>
-    <hr>{html}
-    <p>Adjuntos: {', '.join([Path(a).name for a in (attachments or [])])}</p>
-    """
-    f.write_text(body, encoding="utf-8")
+#def send_mail_preview(to, subject, html, attachments=None, cc=None):
+#    prev_dir = OUT_DIR / "mails"
+#    prev_dir.mkdir(parents=True, exist_ok=True)
+#    f = prev_dir / f"preview_{datetime.now():%Y%m%d_%H%M%S}.html"
+#    body = f"""
+#    <p><b>TO</b>: {', '.join(to or [])}<br>
+#    <b>CC</b>: {', '.join(cc or [])}</p>
+#    <hr>{html}
+#    <p>Adjuntos: {', '.join([Path(a).name for a in (attachments or [])])}</p>
+#    """
+#    f.write_text(body, encoding="utf-8")
 
-def get_legal_email() -> str:
-    if LEGAL_JEFE_EMAIL:
-        return LEGAL_JEFE_EMAIL
-    elif LEGAL_EMAIL:
-        return LEGAL_EMAIL
-    return ""
+def get_legal_emails() -> List[str]:
+    """Devuelve la lista de correos del área Legal."""
+    return LEGAL_MAILS or []
 
 def get_rrhh_emails() -> List[str]:
-    emails: List[str] = []
-    if RRHH_JEFE_EMAIL:
-        emails.append(RRHH_JEFE_EMAIL)
-    elif RRHH_EMAIL:
-        emails.append(RRHH_EMAIL)
-    if RRHH_EQUIPO_EMAIL:
-        emails.append(RRHH_EQUIPO_EMAIL)
-    elif LEGAL_EQUIPO_EMAIL:
-        emails.append(LEGAL_EQUIPO_EMAIL)
-    return emails
+    """Devuelve la lista de correos del área RRHH."""
+    return RRHH_MAILS or []
