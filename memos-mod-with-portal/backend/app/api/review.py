@@ -73,13 +73,11 @@ def legal_approve(
             "UPDATE memos SET legal_aprobado='OBSERVADO', legal_comentario=?, estado='Observado Legal' WHERE id=?",
             (comentario, id),
         )
-        edit_link = f"{BASE_URL}/apps/memos/edit/index.html?id={id}"
         html_obs = f"""
-        <p>Su solicitud de memo <b>{memo_id}</b> ha sido observada por Legal.</p>
+        <p>Su solicitud de memo <b>{memo_id}</b> ha sido observada por Legal, por lo cual no procede</p>
         <p><b>Observaciones:</b></p>
         <p>{(comentario or '(sin comentario específico)')}</p>
-        <p>Por favor, revise y corrija la información según las observaciones.</p>
-        <p><a href="{edit_link}">Editar Memo</a></p>
+        <p>Por favor, revise las observaciones y una vez corregido, vuelva a enviar la solicitud.</p>
         """
         if solicitante_email:
             cc_list = get_rrhh_emails()
@@ -127,8 +125,6 @@ def approve(
     if (legal_aprobado or "").upper() != "APROBADO":
         raise HTTPException(403, "Este memo debe ser aprobado por Legal primero.")
 
-    edit_link = f"{BASE_URL}/apps/memos/edit/index.html?id={id}"
-
     if d == "APROBAR":
         # marca aprobado y luego emitido
         db_exec("UPDATE memos SET estado='Aprobado RRHH' WHERE id=?", (id,))
@@ -155,8 +151,7 @@ def approve(
         <p>Su solicitud de memo <b>{memo_id}</b> ha sido observada por RRHH.</p>
         <p><b>Observaciones:</b></p>
         <p>{(comentario or '(sin comentario específico)')}</p>
-        <p>Por favor, revise y corrija la información según las observaciones.</p>
-        <p><a href="{edit_link}">Editar Memo</a></p>
+        <p>Por favor, revise las observaciones y una vez corregido, vuelva a enviar la solicitud.</p>
         """
         if solicitante_email:
             cc_list = get_rrhh_emails()

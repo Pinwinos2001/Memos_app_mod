@@ -44,7 +44,15 @@ def generate_doc_from_template(ctx: Dict[str,str], evid_paths: List[Path], out_d
     # Evidences
     if evid_paths and Inches is not None:
         doc.add_page_break()
+        title = doc.add_paragraph()
+        title.alignment = 1  # 0 left, 1 center, 2 right, 3 justify
+        run = title.add_run("ANEXOS")
+        run.bold = True
+
+        doc.add_paragraph("")  # espacio
         doc.add_paragraph("Evidencias:")
+        doc.add_paragraph("")  # espacio
+
         for img in evid_paths:
             try:
                 doc.add_picture(str(img), width=Inches(6.0))  # type: ignore
