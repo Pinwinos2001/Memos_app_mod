@@ -89,13 +89,17 @@ form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   submitBtn.disabled = true;
   const fd = new FormData(form);
+  //Mandando la info
   const r = await fetch(`${base}/api/memos/submit`, { method: 'POST', body: fd });
+  //Consulta si la respuesta es correcta
   if (!r.ok) {
     alert(`Error del servidor (${r.status})`);
     submitBtn.disabled = false;
     return;
   }
+  //Almacenar el resulta en otra variable
   const data = await r.json();
+  //Redirigir a la página de éxito con los parámetros necesarios
   if(data && data.ok){
     window.location.href = `../result/success.html?memo_id=${encodeURIComponent(data.memo_id)}&corr_id=${encodeURIComponent(data.corr_id)}&email=${encodeURIComponent(fd.get('solicitante_email')||'')}&pdf=${encodeURIComponent(data.id||'')}`;
   }else{
