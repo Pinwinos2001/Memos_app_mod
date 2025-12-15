@@ -29,6 +29,23 @@ document.addEventListener('change', e=>{
   }
 });
 
+const textarea_input_hechos = document.getElementById('textarea_input_hechos');
+
+textarea_input_hechos.addEventListener('input', function() {
+    document.getElementById('character_counter').innerHTML=textarea_input_hechos.value.length + '/190 caracteres'
+    if (textarea_input_hechos.value.length > 190){
+      textarea_input_hechos.style.borderColor = "#ff2b00";
+      textarea_input_hechos.style.boxShadow = "0 0 0 3px rgba(255, 43, 0, 0.22)";
+      document.getElementById('character_counter').style.color = "#ff2b00";
+    }
+    else {
+      textarea_input_hechos.style.color = "#222";
+      textarea_input_hechos.style.boxShadow = "";
+      textarea_input_hechos.style.border = "1.5px solid #d1d5db";
+      document.getElementById('character_counter').style.color = "#205527";
+    }
+});
+
 const form = document.getElementById('memoForm');
 const submitBtn = document.getElementById('submitBtn');
 const progressFill = document.getElementById('progressFill');

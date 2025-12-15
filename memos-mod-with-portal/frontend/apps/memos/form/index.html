@@ -66,8 +66,11 @@
 
       <fieldset>
         <legend><span>D. Hechos</span> <span class="legend-status" id="statusD">0%</span></legend>
-        <label>¿Qué ocurrió? (descripción breve y concreta)</label>
-        <textarea name="hecho_que" rows="4" required placeholder="Describe el hecho de forma objetiva, con fechas y lugares. Máx. 1500 caracteres."></textarea>
+        <label>¿Qué ocurrió? (descripción breve y concreta, maximo 190 caracteres)</label>
+        <div>
+          <textarea maxlength="190" class="textarea_input" id="textarea_input_hechos" name="hecho_que" rows="4" required placeholder="Describe el hecho de forma objetiva, con fechas y lugares. Máx. 190 caracteres."></textarea>
+          <p id="character_counter" class="infomation_below_textarea">0/190 caracteres</p>
+        </div>        
         <div class="row">
           <div><label>¿Cuándo?</label><input name="hecho_cuando" type="date" required></div>
           <div><label>¿Dónde?</label><input name="hecho_donde" placeholder="ej.: ruta SJL - On Trade"></div>
