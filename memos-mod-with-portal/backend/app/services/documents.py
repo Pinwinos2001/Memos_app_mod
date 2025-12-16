@@ -50,12 +50,12 @@ def generate_doc_from_template(ctx: Dict[str,str], evid_paths: List[Path], out_d
         run.bold = True
 
         doc.add_paragraph("")  # espacio
-        doc.add_paragraph("Evidencias:")
-        doc.add_paragraph("")  # espacio
+        #doc.add_paragraph("Evidencias:")
+        #doc.add_paragraph("")  # espacio
 
         for img in evid_paths:
             try:
-                doc.add_picture(str(img), width=Inches(6.0))  # type: ignore
+                doc.add_picture(str(img), width=Inches(4.0))  # type: ignore
             except Exception:
                 pass
     doc.save(out_docx)

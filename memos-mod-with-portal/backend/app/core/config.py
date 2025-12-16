@@ -46,7 +46,7 @@ else:
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-TEMPLATE_PATH = TEMPLATES_DIR / "memo_formato.docx"
+TEMPLATE_PATH = TEMPLATES_DIR / "memo_formatov2.docx"
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8080")
 BACK_URL = os.getenv("BACK_URL", "http://localhost:8000")
