@@ -61,3 +61,4 @@ build/
 Thumbs.db
 *.pem
 /memos-mod-with-portal/backend/venvu
+memos-mod-with-portal/backend/.env_deploy

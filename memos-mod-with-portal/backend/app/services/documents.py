@@ -7,11 +7,13 @@ import os
 import shutil
 import subprocess
 import tempfile
+from docx.shared import Pt  # type: ignore
+from docx.oxml.ns import qn  # type: ignore
 
 # Attempt to import python-docx optionally
 try:
     from docx import Document  # type: ignore
-    from docx.shared import Inches  # type: ignore
+    from docx.shared import Inches
 except Exception:
     Document = None  # type: ignore
     Inches = None  # type: ignore
@@ -20,6 +22,22 @@ def _replace_in_paragraph(par, mapping: Dict[str, str]):
     for key, val in mapping.items():
         if key in par.text:
             par.text = par.text.replace(key, val)
+    
+    
+            # Aplicar Arial 10 a todo el párrafo
+            for run in par.runs:
+                run.font.name = "Arial"
+                run.font.size = Pt(10)
+
+                # Para que Word respete la fuente
+                rPr = run._element.get_or_add_rPr()
+                rFonts = rPr.get_or_add_rFonts()
+                rFonts.set(qn('w:ascii'), 'Arial')
+                rFonts.set(qn('w:hAnsi'), 'Arial')
+                rFonts.set(qn('w:eastAsia'), 'Arial')
+                rFonts.set(qn('w:cs'), 'Arial')
+
+
 
 def _replace_in_table(table, mapping: Dict[str, str]):
     for row in table.rows:
